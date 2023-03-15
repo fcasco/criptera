@@ -192,7 +192,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           color: Theme.of(context).colorScheme.primary),
                     )),
                     child: new ListTile(
-                      // FIXME: onTap: widget.toggleTheme,
+                      onTap: () => widget.toggleTheme(),
                       leading: new Icon(
                           widget.darkEnabled
                               ? Icons.brightness_3
@@ -206,11 +206,6 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                     )),
                 body: new ListView(
                   children: <Widget>[
-                    new ListTile(
-                      leading: new Icon(Icons.settings),
-                      title: new Text("Settings"),
-                      onTap: () => Navigator.pushNamed(context, "/settings"),
-                    ),
                     new ListTile(
                       leading: new Icon(Icons.timeline),
                       title: new Text("Portfolio Timeline"),
@@ -229,44 +224,10 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                               builder: (context) =>
                                   new PortfolioTabs(1, _makePortfolioDisplay))),
                     ),
-                    new Container(
-                      decoration: new BoxDecoration(
-                          border: new Border(
-                              bottom: new BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 1.0))),
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    ),
                     new ListTile(
-                      leading: new Icon(Icons.short_text),
-                      title: new Text("Abbreviate Numbers"),
-                      trailing: new Switch(
-                          activeColor: Theme.of(context).colorScheme.tertiary,
-                          value: shortenOn,
-                          onChanged: (onOff) {
-                            setState(() {
-                              shortenOn = onOff;
-                            });
-                            widget.savePreferences();
-                          }),
-                      onTap: () {
-                        setState(() {
-                          shortenOn = !shortenOn;
-                        });
-                        widget.savePreferences();
-                      },
-                    ),
-                    new ListTile(
-                      leading: new Icon(Icons.opacity),
-                      title: new Text("OLED Dark Mode"),
-                      trailing: new Switch(
-                        activeColor: Theme.of(context).colorScheme.tertiary,
-                        value: widget.darkOLED,
-                        onChanged: (onOff) {
-                          widget.switchOLED(state: onOff);
-                        },
-                      ),
-                      // FIXME: onTap: widget.switchOLED,
+                      leading: new Icon(Icons.settings),
+                      title: new Text("Settings"),
+                      onTap: () => Navigator.pushNamed(context, "/settings"),
                     ),
                   ],
                 ))),
