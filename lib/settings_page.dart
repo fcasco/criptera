@@ -245,13 +245,31 @@ class SettingsPageState extends State<SettingsPage> {
                   style: Theme.of(context).textTheme.titleMedium,
                   children: <TextSpan>[
                     TextSpan(text: "@TrentPiercy", style: Theme.of(context).textTheme.titleMedium
-                      ?.apply(color: Theme.of(context).colorScheme.primary, fontWeightDelta: 2))
+                      ?.apply(color: Theme.of(context).colorScheme.secondary, fontWeightDelta: 2))
                   ]
                 )
               ),
               subtitle: new Text("twitter.com/trentpiercy"),
               leading: new Icon(Icons.favorite),
               onTap: () => _launchUrl("https://twitter.com/trentpiercy"),
+            ),
+          ),
+          new Container(
+            color: Theme.of(context).cardColor,
+            child: new ListTile(
+              title: new RichText(
+                text: new TextSpan(
+                  text: "Forked and updated by ",
+                  style: Theme.of(context).textTheme.titleMedium,
+                  children: <TextSpan>[
+                    TextSpan(text: "fcasco", style: Theme.of(context).textTheme.titleMedium
+                      ?.apply(color: Theme.of(context).colorScheme.secondary, fontWeightDelta: 2))
+                  ]
+                )
+              ),
+              subtitle: new Text("github.com/fcasco"),
+              leading: new Icon(Icons.build),
+              onTap: () => _launchUrl("https://github.com/fcasco"),
             ),
           ),
         ],
