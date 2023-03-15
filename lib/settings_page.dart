@@ -11,12 +11,12 @@ import 'main.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage(
-      {this.savePreferences,
-      this.toggleTheme,
-      this.darkEnabled,
-      this.themeMode,
-      this.switchOLED,
-      this.darkOLED});
+      {required this.savePreferences,
+      required this.toggleTheme,
+      required this.darkEnabled,
+      required this.themeMode,
+      required this.switchOLED,
+      required this.darkOLED});
   final Function savePreferences;
   final Function toggleTheme;
   final bool darkEnabled;
@@ -37,13 +37,13 @@ class SettingsPageState extends State<SettingsPage> {
             title: new Text("Clear Portfolio?"),
             content: new Text("This will permanently delete all transactions."),
             actions: <Widget>[
-              new FlatButton(
+              new TextButton(
                   onPressed: () async {
                     await _deletePortfolio();
                     Navigator.of(context).pop();
                   },
                   child: new Text("Delete")),
-              new FlatButton(
+              new TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: new Text("Cancel"))
             ],
@@ -77,7 +77,7 @@ class SettingsPageState extends State<SettingsPage> {
               child: new InkWell(
               onTap: () {
                 Clipboard.setData(new ClipboardData(text: text));
-                _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
                     backgroundColor: Theme.of(context).indicatorColor,
                     content: new Text("Copied to Clipboard!")));
             },
@@ -86,8 +86,8 @@ class SettingsPageState extends State<SettingsPage> {
                 child: new Text(text,
                     style: Theme.of(context)
                         .textTheme
-                        .body1
-                        .apply(fontSizeFactor: 1.1))),
+                        .bodyLarge
+                        ?.apply(fontSizeFactor: 1.1))),
           )));
     }));
   }
@@ -129,7 +129,7 @@ class SettingsPageState extends State<SettingsPage> {
           backgroundColor: Theme.of(context).primaryColor,
           titleSpacing: 0.0,
           elevation: appBarElevation,
-          title: new Text("Settings", style: Theme.of(context).textTheme.title),
+          title: new Text("Settings", style: Theme.of(context).textTheme.titleMedium),
         ),
       ),
       body: new ListView(
@@ -137,12 +137,12 @@ class SettingsPageState extends State<SettingsPage> {
           new Container(
             padding: const EdgeInsets.all(10.0),
             child: new Text("Preferences",
-                style: Theme.of(context).textTheme.body2),
+                style: Theme.of(context).textTheme.bodyMedium),
           ),
           new Container(
               color: Theme.of(context).cardColor,
               child: new ListTile(
-                onTap: widget.toggleTheme,
+                onTap: () => widget.toggleTheme(),
                 leading: new Icon(widget.darkEnabled
                     ? Icons.brightness_3
                     : Icons.brightness_7),
@@ -155,13 +155,13 @@ class SettingsPageState extends State<SettingsPage> {
               leading: new Icon(Icons.opacity),
               title: new Text("OLED Dark Mode"),
               trailing: new Switch(
-                activeColor: Theme.of(context).accentColor,
+                activeColor: Theme.of(context).colorScheme.secondary,
                 value: widget.darkOLED,
                 onChanged: (onOff) {
                   widget.switchOLED(state: onOff);
                 },
               ),
-              onTap: widget.switchOLED,
+              onTap: () => widget.switchOLED(),
             ),
           ),
           new Container(
@@ -170,7 +170,7 @@ class SettingsPageState extends State<SettingsPage> {
               leading: new Icon(Icons.short_text),
               title: new Text("Abbreviate Numbers"),
               trailing: new Switch(
-                  activeColor: Theme.of(context).accentColor,
+                  activeColor: Theme.of(context).colorScheme.secondary,
                   value: shortenOn,
                   onChanged: (onOff) {
                     setState(() {
@@ -188,7 +188,7 @@ class SettingsPageState extends State<SettingsPage> {
           ),
           new Container(
             padding: const EdgeInsets.all(10.0),
-            child: new Text("Debug", style: Theme.of(context).textTheme.body2),
+            child: new Text("Debug", style: Theme.of(context).textTheme.bodyMedium),
           ),
           new Container(
             color: Theme.of(context).cardColor,
@@ -220,7 +220,7 @@ class SettingsPageState extends State<SettingsPage> {
               title: new Text("Issues & Feature Requests"),
               leading: new Icon(Icons.bug_report),
               onTap: () =>
-                  _launchUrl("https://github.com/trentpiercy/trace/issues"),
+                  _launchUrl("https://github.com/"),
             ),
           ),
           new Container(
@@ -229,23 +229,23 @@ class SettingsPageState extends State<SettingsPage> {
               title: new Text("Version $version ($buildNumber)"),
               subtitle: new Text("github.com/trentpiercy/trace"),
               leading: new Icon(Icons.info_outline),
-              onTap: () => _launchUrl("https://github.com/trentpiercy/trace"),
+              onTap: () => _launchUrl("https://github.com/"),
             ),
           ),
           new Container(
             padding: const EdgeInsets.all(10.0),
-            child: new Text("Credit", style: Theme.of(context).textTheme.body2),
+            child: new Text("Credit", style: Theme.of(context).textTheme.bodyMedium),
           ),
           new Container(
             color: Theme.of(context).cardColor,
             child: new ListTile(
               title: new RichText(
                 text: new TextSpan(
-                  text: "Maintained with love by ",
-                  style: Theme.of(context).textTheme.subhead,
+                  text: "Created with love by ",
+                  style: Theme.of(context).textTheme.titleMedium,
                   children: <TextSpan>[
-                    TextSpan(text: "@TrentPiercy", style: Theme.of(context).textTheme.subhead
-                      .apply(color: Theme.of(context).buttonColor, fontWeightDelta: 2))
+                    TextSpan(text: "@TrentPiercy", style: Theme.of(context).textTheme.titleMedium
+                      ?.apply(color: Theme.of(context).colorScheme.primary, fontWeightDelta: 2))
                   ]
                 )
               ),
@@ -268,7 +268,7 @@ class ImportPage extends StatefulWidget {
 class ImportPageState extends State<ImportPage> {
   TextEditingController _importController = new TextEditingController();
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  Map<String, dynamic> newPortfolioMap;
+  Map<String, dynamic> newPortfolioMap = {};
   Color textColor = Colors.red;
   List validSymbols = [];
 
@@ -303,11 +303,11 @@ class ImportPageState extends State<ImportPage> {
 
       newPortfolioMap = checkMap;
       setState(() {
-        textColor = Theme.of(context).textTheme.body1.color;
+        textColor = (Theme.of(context).textTheme.bodyLarge?.color ?? Colors.green);
       });
     } catch (e) {
       print("Invalid JSON: $e");
-      newPortfolioMap = null;
+      newPortfolioMap = {};
       setState(() {
         textColor = Colors.red;
       });
@@ -323,7 +323,7 @@ class ImportPageState extends State<ImportPage> {
             content: new Text(
                 "This will permanently overwrite current portfolio and transactions."),
             actions: <Widget>[
-              new FlatButton(
+              new TextButton(
                   onPressed: () async {
                     portfolioMap = newPortfolioMap;
                     await getApplicationDocumentsDirectory()
@@ -333,11 +333,11 @@ class ImportPageState extends State<ImportPage> {
                       jsonFile.writeAsStringSync(json.encode(portfolioMap));
                     });
                     Navigator.of(context).pop();
-                    _scaffoldKey.currentState.showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                         new SnackBar(content: new Text("Success!")));
                   },
                   child: new Text("Import")),
-              new FlatButton(
+              new TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: new Text("Cancel"))
             ],
@@ -374,29 +374,29 @@ class ImportPageState extends State<ImportPage> {
               new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new RaisedButton(
+                  new ElevatedButton(
                     onPressed: () async {
-                      String clipText = (await Clipboard.getData('text/plain')).text;
-                      _importController.text = clipText;
+                      String? clipText = (await Clipboard.getData('text/plain'))?.text;
+                      _importController.text = (clipText ?? "");
                       _checkImport(clipText);
                     },
                     child: new Text("Paste",
                         style: Theme.of(context)
                             .textTheme
-                            .body2
-                            .apply(color: Theme.of(context).iconTheme.color)),
+                            .bodyMedium
+                            ?.apply(color: Theme.of(context).iconTheme.color)),
                   ),
                   new Padding(
                     padding: EdgeInsets.symmetric(horizontal: 6.0),
                   ),
-                  new RaisedButton(
+                  new ElevatedButton(
                     onPressed: textColor != Colors.red ? _importPortfolio : null,
                     child: new Text("Import",
                         style: Theme.of(context)
                             .textTheme
-                            .body2
-                            .apply(color: Theme.of(context).iconTheme.color)),
-                    color: Colors.green,
+                            .bodyMedium
+                            ?.apply(color: Theme.of(context).iconTheme.color)),
+                    // color: Colors.green,
                   ),
                 ],
               ),
@@ -407,12 +407,12 @@ class ImportPageState extends State<ImportPage> {
                   maxLines: null,
                   style: Theme.of(context)
                       .textTheme
-                      .body1
-                      .apply(color: textColor, fontSizeFactor: 1.1),
+                      .bodyLarge
+                      ?.apply(color: textColor, fontSizeFactor: 1.1),
                   decoration: new InputDecoration(
                       focusedBorder: new OutlineInputBorder(
                           borderSide: new BorderSide(
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               width: 2.0)),
                       border: new OutlineInputBorder(),
                       hintText: "Enter Portfolio JSON"),

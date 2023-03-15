@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../flutter_candlesticks.dart';
 
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../main.dart';
 import 'change_bar.dart';
 
 class CoinMarketStats extends StatefulWidget {
   CoinMarketStats({
-    Key key,
+    Key? key,
     this.exchangeData,
     this.e,
   }) : super(key: key);
@@ -27,15 +27,15 @@ class CoinMarketStats extends StatefulWidget {
 
 class CoinMarketStatsState extends State<CoinMarketStats> {
   CoinMarketStatsState({
-    this.exchangeData,
-    this.e,
+    required this.exchangeData,
+    required this.e,
   });
 
   Map exchangeData;
-  String price;
+  String? price;
 
   String e;
-  List historyOHLCV;
+  List? historyOHLCV;
 
   int currentOHLCVWidthSetting = 0;
   String historyAmt = "720";
@@ -59,12 +59,12 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
 
   Future<Null> getPrice() async {
     var response = await http.get(
-        Uri.encodeFull("https://min-api.cryptocompare.com/data/price?fsym=" +
+        Uri.parse(Uri.encodeFull("https://min-api.cryptocompare.com/data/price?fsym=" +
             exchangeData["FROMSYMBOL"] +
             "&tsyms=" +
             toSym +
             "&e=" +
-            e),
+            e)),
         headers: {"Accept": "application/json"});
     setState(() {
       price = new JsonDecoder().convert(response.body)[toSym].toString();
@@ -73,7 +73,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
 
   Future<Null> getHistoryOHLCV() async {
     var response = await http.get(
-        Uri.encodeFull("https://min-api.cryptocompare.com/data/histo" +
+        Uri.parse(Uri.encodeFull("https://min-api.cryptocompare.com/data/histo" +
             ohlcvWidthOptions[historyTotal][currentOHLCVWidthSetting][3] +
             "?fsym=" +
             exchangeData["FROMSYMBOL"] +
@@ -84,7 +84,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
             ohlcvWidthOptions[historyTotal][currentOHLCVWidthSetting][2]
                 .toString() +
             "&e=" +
-            e),
+            e)),
         headers: {"Accept": "application/json"});
     setState(() {
       historyOHLCV = new JsonDecoder().convert(response.body)["Data"];
@@ -93,7 +93,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
 
   Future<Null> changeOHLCVWidth(int currentSetting) async {
     currentOHLCVWidthSetting = currentSetting;
-    historyOHLCV = null;
+    historyOHLCV = [];
     getHistoryOHLCV();
   }
 
@@ -101,7 +101,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
     num highReturn = -double.infinity;
     num lowReturn = double.infinity;
 
-    for (var i in historyOHLCV) {
+    for (var i in (historyOHLCV ?? [])) {
       if (i["high"] > highReturn) {
         highReturn = i["high"].toDouble();
       }
@@ -113,8 +113,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
     _high = normalizeNum(highReturn);
     _low = normalizeNum(lowReturn);
 
-    var start = historyOHLCV[0]["open"] == 0 ? 1 : historyOHLCV[0]["open"];
-    var end = historyOHLCV.last["close"];
+    var start = historyOHLCV?[0]["open"] == 0 ? 1 : historyOHLCV?[0]["open"];
+    var end = historyOHLCV?.last["close"];
     var changePercent = (end - start) / start * 100;
     _change = changePercent.toString().substring(0, changePercent > 0 ? 5 : 6);
   }
@@ -131,7 +131,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
       historyTotal = total;
       historyAgg = agg;
 
-      historyOHLCV = null;
+      historyOHLCV = [];
     });
     getPrice();
     await getHistoryOHLCV();
@@ -159,7 +159,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
               exchangeData["FROMSYMBOL"] + " on " + exchangeData["MARKET"]),
         ),
       ),
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       body: new Container(
                 child: new Column(
                   children: <Widget>[
@@ -173,8 +173,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                           new Text("\$" + price.toString(),
                               style: Theme.of(context)
                                   .textTheme
-                                  .body2
-                                  .apply(fontSizeFactor: 2.2)),
+                                  .bodyMedium
+                                  ?.apply(fontSizeFactor: 2.2)),
                           new Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
@@ -184,8 +184,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                   "\$" + numCommaParse(exchangeData["VOLUME24HOURTO"].toStringAsFixed(0)),
                                   style: Theme.of(context)
                                       .textTheme
-                                      .body2
-                                      .apply(
+                                      .bodyMedium
+                                      ?.apply(
                                           fontSizeFactor: 1.1,
                                           fontWeightDelta: 2)),
                             ],
@@ -215,8 +215,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                 new Text("Period",
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body1
-                                                        .apply(
+                                                        .bodyLarge
+                                                        ?.apply(
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
@@ -227,8 +227,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                 new Text(historyTotal,
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body2
-                                                        .apply(
+                                                        .bodyMedium
+                                                        ?.apply(
                                                             fontWeightDelta:
                                                                 2)),
                                                 new Padding(
@@ -241,8 +241,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                         : _change + "%",
                                                     style: Theme.of(context)
                                                         .primaryTextTheme
-                                                        .body1
-                                                        .apply(
+                                                        .bodyLarge
+                                                        ?.apply(
                                                             fontWeightDelta: 1,
                                                             color: num.parse(
                                                                         _change) >=
@@ -259,8 +259,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                 new Text("Candle Width",
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body1
-                                                        .apply(
+                                                        .bodyLarge
+                                                        ?.apply(
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
@@ -275,8 +275,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                         [0],
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body2
-                                                        .apply(
+                                                        .bodyMedium
+                                                        ?.apply(
                                                             fontWeightDelta: 2))
                                               ],
                                             ),
@@ -294,8 +294,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
-                                                              .body1
-                                                              .apply(
+                                                              .bodyLarge
+                                                              ?.apply(
                                                                   color: Theme.of(
                                                                           context)
                                                                       .hintColor)),
@@ -303,8 +303,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
-                                                              .body1
-                                                              .apply(
+                                                              .bodyLarge
+                                                              ?.apply(
                                                                   color: Theme.of(
                                                                           context)
                                                                       .hintColor)),
@@ -322,12 +322,12 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .body2),
+                                                                  .bodyMedium),
                                                       new Text("\$" + _low,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .body2)
+                                                                  .bodyMedium)
                                                     ],
                                                   ),
                                                 ],
@@ -410,7 +410,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                               padding: const EdgeInsets.only(
                                   left: 2.0, right: 1.0, top: 10.0),
                               child: new OHLCVGraph(
-                                data: historyOHLCV,
+                                data: (historyOHLCV ?? []),
                                 enableGridLines: true,
                                 gridLineColor: Theme.of(context).dividerColor,
                                 gridLineLabelColor: Theme.of(context).hintColor,

@@ -45,13 +45,13 @@ class CoinListItem extends StatelessWidget {
                     new Text(snapshot["rank"].toString(),
                         style: Theme.of(context)
                             .textTheme
-                            .body2
-                            .apply(fontWeightDelta: 2)),
+                            .bodyMedium
+                            ?.apply(fontWeightDelta: 2)),
                     new Padding(padding: const EdgeInsets.only(right: 7.0)),
                     _getImage(),
                     new Padding(padding: const EdgeInsets.only(right: 7.0)),
                     new Text(snapshot["CoinInfo"]["Name"],
-                        style: Theme.of(context).textTheme.body2),
+                        style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -65,7 +65,7 @@ class CoinListItem extends StatelessWidget {
                           "\$" +
                               normalizeNum(
                                   snapshot["RAW"]["USD"]["MKTCAP"]),
-                          style: Theme.of(context).textTheme.body2),
+                          style: Theme.of(context).textTheme.bodyMedium),
                       new Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                       new Text(
                           "\$" +
@@ -73,8 +73,8 @@ class CoinListItem extends StatelessWidget {
                                   snapshot["RAW"]["USD"]["TOTALVOLUME24H"]),
                           style: Theme.of(context)
                               .textTheme
-                              .body2
-                              .apply(color: Theme.of(context).hintColor))
+                              .bodyMedium
+                              ?.apply(color: Theme.of(context).hintColor))
                     ],
                   )),
               new Container(
@@ -93,7 +93,7 @@ class CoinListItem extends StatelessWidget {
                                     .toStringAsFixed(2) + "%"
                             : (snapshot["RAW"]["USD"]["CHANGEPCT24HOUR"] ?? 0)
                                     .toStringAsFixed(2) + "%",
-                        style: Theme.of(context).primaryTextTheme.body1.apply(
+                        style: Theme.of(context).primaryTextTheme.bodyLarge?.apply(
                             color: (snapshot["RAW"]["USD"]["CHANGEPCT24HOUR"] ?? 0) >= 0
                                 ? Colors.green
                                 : Colors.red)),

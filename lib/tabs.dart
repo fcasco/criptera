@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'package:flutter/rendering.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'portfolio/portfolio_tabs.dart';
@@ -12,13 +9,13 @@ import 'market_coin_item.dart';
 
 class Tabs extends StatefulWidget {
   Tabs(
-      {this.toggleTheme,
-      this.savePreferences,
-      this.handleUpdate,
-      this.darkEnabled,
-      this.themeMode,
-      this.switchOLED,
-      this.darkOLED});
+      {required this.toggleTheme,
+      required this.savePreferences,
+      required this.handleUpdate,
+      required this.darkEnabled,
+      required this.themeMode,
+      required this.switchOLED,
+      required this.darkOLED});
 
   final Function toggleTheme;
   final Function handleUpdate;
@@ -35,19 +32,19 @@ class Tabs extends StatefulWidget {
 }
 
 class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
-  TabController _tabController;
+  late TabController _tabController;
   TextEditingController _textController = new TextEditingController();
   int _tabIndex = 0;
 
   bool isSearching = false;
-  String filter;
+  String filter = "";
 
   bool sheetOpen = false;
 
   _handleFilter(value) {
     if (value == null) {
       isSearching = false;
-      filter = null;
+      filter = "";
     } else {
       filter = value;
       isSearching = true;
@@ -65,14 +62,14 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   _stopSearch() {
     setState(() {
       isSearching = false;
-      filter = null;
+      filter = "";
       _textController.clear();
       _filterMarketData();
     });
   }
 
   _handleTabChange() {
-    _tabIndex = _tabController.animation.value.round();
+    _tabIndex = (_tabController.animation?.value.round() ?? 0);
     if (isSearching) {
       _stopSearch();
     } else {
@@ -85,8 +82,9 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
       sheetOpen = true;
     });
     _scaffoldKey.currentState
-        .showBottomSheet((BuildContext context) {
+        ?.showBottomSheet((BuildContext context) {
           return new TransactionSheet(
+            key: Key("fixme"),
             () {
               setState(() {
                 _makePortfolioDisplay();
@@ -159,8 +157,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = new TabController(length: 2, vsync: this);
-    _tabController.animation.addListener(() {
-      if (_tabController.animation.value.round() != _tabIndex) {
+    _tabController.animation?.addListener(() {
+      if (_tabController.animation?.value.round() != _tabIndex) {
         _handleTabChange();
       }
     });
@@ -191,20 +189,20 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                     decoration: new BoxDecoration(
                         border: new Border(
                       top: new BorderSide(
-                          color: Theme.of(context).bottomAppBarColor),
+                          color: Theme.of(context).colorScheme.primary),
                     )),
                     child: new ListTile(
-                      onTap: widget.toggleTheme,
+                      // FIXME: onTap: widget.toggleTheme,
                       leading: new Icon(
                           widget.darkEnabled
                               ? Icons.brightness_3
                               : Icons.brightness_7,
-                          color: Theme.of(context).buttonColor),
+                          color: Theme.of(context).colorScheme.primary),
                       title: new Text(widget.themeMode,
                           style: Theme.of(context)
                               .textTheme
-                              .body2
-                              .apply(color: Theme.of(context).buttonColor)),
+                              .bodyMedium
+                              ?.apply(color: Theme.of(context).colorScheme.primary)),
                     )),
                 body: new ListView(
                   children: <Widget>[
@@ -223,7 +221,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                   new PortfolioTabs(0, _makePortfolioDisplay))),
                     ),
                     new ListTile(
-                      leading: new Icon(Icons.pie_chart_outlined),
+                      leading: new Icon(Icons.pie_chart_outline_outlined),
                       title: new Text("Portfolio Breakdown"),
                       onTap: () => Navigator.push(
                           context,
@@ -235,7 +233,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       decoration: new BoxDecoration(
                           border: new Border(
                               bottom: new BorderSide(
-                                  color: Theme.of(context).bottomAppBarColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 1.0))),
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                     ),
@@ -243,7 +241,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       leading: new Icon(Icons.short_text),
                       title: new Text("Abbreviate Numbers"),
                       trailing: new Switch(
-                          activeColor: Theme.of(context).accentColor,
+                          activeColor: Theme.of(context).colorScheme.tertiary,
                           value: shortenOn,
                           onChanged: (onOff) {
                             setState(() {
@@ -262,13 +260,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       leading: new Icon(Icons.opacity),
                       title: new Text("OLED Dark Mode"),
                       trailing: new Switch(
-                        activeColor: Theme.of(context).accentColor,
+                        activeColor: Theme.of(context).colorScheme.tertiary,
                         value: widget.darkOLED,
                         onChanged: (onOff) {
                           widget.switchOLED(state: onOff);
                         },
                       ),
-                      onTap: widget.switchOLED,
+                      // FIXME: onTap: widget.switchOLED,
                     ),
                   ],
                 ))),
@@ -285,7 +283,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           controller: _textController,
                           autocorrect: false,
                           keyboardType: TextInputType.text,
-                          style: Theme.of(context).textTheme.subhead,
+                          style: Theme.of(context).textTheme.titleMedium,
                           onChanged: (value) => _handleFilter(value),
                           autofocus: true,
                           textCapitalization: TextCapitalization.none,
@@ -323,9 +321,9 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       height: 38.0,
                       child: new TabBar(
                         controller: _tabController,
-                        indicatorColor: Theme.of(context).accentIconTheme.color,
-                        unselectedLabelColor: Theme.of(context).disabledColor,
-                        labelColor: Theme.of(context).accentIconTheme.color,
+                        indicatorColor: Theme.of(context).colorScheme.secondary,
+                        unselectedLabelColor: Theme.of(context).colorScheme.secondary,
+                        labelColor: Theme.of(context).colorScheme.primary,
                         tabs: <Tab>[
                           new Tab(icon: new Icon(Icons.person)),
                           new Tab(icon: new Icon(Icons.filter_list)),
@@ -348,7 +346,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
             onPressed: () => Navigator.of(context).pop(),
             child: Icon(Icons.close),
             foregroundColor: Theme.of(context).iconTheme.color,
-            backgroundColor: Theme.of(context).accentIconTheme.color,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
             elevation: 4.0,
             tooltip: "Close Transaction",
           )
@@ -357,7 +355,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
               icon: Icon(Icons.add),
               label: new Text("Add Transaction"),
               foregroundColor: Theme.of(context).iconTheme.color,
-              backgroundColor: Theme.of(context).accentIconTheme.color,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               elevation: 4.0,
               tooltip: "Add Transaction",
         );
@@ -374,7 +372,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   }
 
   List portfolioSortType = ["holdings", true];
-  List sortedPortfolioDisplay;
+  List sortedPortfolioDisplay = [];
   _sortPortfolioDisplay() {
     sortedPortfolioDisplay = portfolioDisplay;
     if (portfolioSortType[1]) {
@@ -422,21 +420,21 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         new Text("Total Portfolio Value",
-                            style: Theme.of(context).textTheme.caption),
+                            style: Theme.of(context).textTheme.bodySmall),
                         new Text(
                             "\$" +
                                 numCommaParse(totalPortfolioStats["value_usd"]
                                     .toStringAsFixed(2)),
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(fontSizeFactor: 2.2)),
+                                .bodyMedium
+                                ?.apply(fontSizeFactor: 2.2)),
                       ],
                     ),
                     new Column(
                       children: <Widget>[
                         new Text("1h Change",
-                            style: Theme.of(context).textTheme.caption),
+                            style: Theme.of(context).textTheme.bodySmall),
                         new Padding(
                             padding: const EdgeInsets.symmetric(vertical: 1.0)),
                         new Text(
@@ -449,7 +447,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                         .toStringAsFixed(2) +
                                     "%",
                             style:
-                                Theme.of(context).primaryTextTheme.body2.apply(
+                                Theme.of(context).primaryTextTheme.bodyMedium?.apply(
                                       color: totalPortfolioStats[
                                                   "percent_change_1h"] >=
                                               0
@@ -463,7 +461,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         new Text("24h Change",
-                            style: Theme.of(context).textTheme.caption),
+                            style: Theme.of(context).textTheme.bodySmall),
                         new Padding(
                             padding: const EdgeInsets.symmetric(vertical: 1.0)),
                         new Text(
@@ -477,8 +475,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                     "%",
                             style: Theme.of(context)
                                 .primaryTextTheme
-                                .body2
-                                .apply(
+                                .bodyMedium
+                                ?.apply(
                                     color: totalPortfolioStats[
                                                 "percent_change_24h"] >=
                                             0
@@ -520,13 +518,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                 portfolioSortType[1] == true
                                     ? "Currency " + upArrow
                                     : "Currency " + downArrow,
-                                style: Theme.of(context).textTheme.body2)
+                                style: Theme.of(context).textTheme.bodyMedium)
                             : new Text(
                                 "Currency",
                                 style: Theme.of(context)
                                     .textTheme
-                                    .body2
-                                    .apply(color: Theme.of(context).hintColor),
+                                    .bodyMedium
+                                    ?.apply(color: Theme.of(context).hintColor),
                               ),
                       ),
                     ),
@@ -551,12 +549,12 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                 portfolioSortType[1] == true
                                     ? "Holdings " + downArrow
                                     : "Holdings " + upArrow,
-                                style: Theme.of(context).textTheme.body2)
+                                style: Theme.of(context).textTheme.bodyMedium)
                             : new Text("Holdings",
                                 style: Theme.of(context)
                                     .textTheme
-                                    .body2
-                                    .apply(color: Theme.of(context).hintColor)),
+                                    .bodyMedium
+                                    ?.apply(color: Theme.of(context).hintColor)),
                       ),
                     ),
                     new InkWell(
@@ -580,12 +578,12 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                 portfolioSortType[1] == true
                                     ? "Price/24h " + downArrow
                                     : "Price/24h " + upArrow,
-                                style: Theme.of(context).textTheme.body2)
+                                style: Theme.of(context).textTheme.bodyMedium)
                             : new Text("Price/24h",
                                 style: Theme.of(context)
                                     .textTheme
-                                    .body2
-                                    .apply(color: Theme.of(context).hintColor)),
+                                    .bodyMedium
+                                    ?.apply(color: Theme.of(context).hintColor)),
                       ),
                     ),
                   ],
@@ -597,9 +595,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                     delegate: new SliverChildBuilderDelegate(
                         (context, index) => new PortfolioListItem(
                             sortedPortfolioDisplay[index], portfolioColumnProps),
-                        childCount: sortedPortfolioDisplay != null
-                            ? sortedPortfolioDisplay.length
-                            : 0))
+                        childCount: sortedPortfolioDisplay.length))
                 : new SliverFillRemaining(
                     child: new Container(
                         alignment: Alignment.topCenter,
@@ -609,17 +605,17 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           children: <Widget>[
                             new Text(
                                 "Your portfolio is empty. Add a transaction!",
-                                style: Theme.of(context).textTheme.caption),
+                                style: Theme.of(context).textTheme.bodySmall),
                             new Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8.0)),
-                            new RaisedButton(
+                            new ElevatedButton(
                               onPressed: _openTransaction,
                               child: new Text("New Transaction",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .body2
-                                      .apply(
+                                      .bodyMedium
+                                      ?.apply(
                                           color: Theme.of(context)
                                               .iconTheme
                                               .color)),
@@ -631,8 +627,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   }
 
   final marketColumnProps = [.32, .35, .28];
-  List filteredMarketData;
-  Map globalData;
+  List filteredMarketData = [];
+  Map globalData = {};
 
   Future<Null> getGlobalData() async {
     // var response = await http.get(
@@ -640,7 +636,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     //     headers: {"Accept": "application/json"});
 
     // globalData = new JsonDecoder().convert(response.body)["data"]["quotes"]["USD"];
-    globalData = null;
+    globalData = {};
   }
 
   Future<Null> _refreshMarketPage() async {
@@ -729,8 +725,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                   new Text("Total Market Cap",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               color:
                                                   Theme.of(context).hintColor)),
                                   new Padding(
@@ -739,8 +735,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                   new Text("Total 24h Volume",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               color:
                                                   Theme.of(context).hintColor)),
                                 ],
@@ -754,21 +750,21 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                   new Text(
                                       "\$" +
                                           normalizeNum(
-                                              globalData["total_market_cap"]),
+                                              (globalData["total_market_cap"] ?? 0)),
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               fontSizeFactor: 1.2,
                                               fontWeightDelta: 2)),
                                   new Text(
                                       "\$" +
                                           normalizeNum(
-                                              globalData["total_volume_24h"]),
+                                              (globalData["total_volume_24h"] ?? 0)),
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               fontSizeFactor: 1.2,
                                               fontWeightDelta: 2)),
                                 ],
@@ -806,12 +802,12 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                     marketSortType[1]
                                         ? "Currency " + upArrow
                                         : "Currency " + downArrow,
-                                    style: Theme.of(context).textTheme.body2)
+                                    style: Theme.of(context).textTheme.bodyMedium)
                                 : new Text("Currency",
                                     style: Theme.of(context)
                                         .textTheme
-                                        .body2
-                                        .apply(
+                                        .bodyMedium
+                                        ?.apply(
                                             color:
                                                 Theme.of(context).hintColor)),
                           ),
@@ -843,20 +839,20 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                                 : "Market Cap " + upArrow,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .body2)
+                                                .bodyMedium)
                                         : new Text("Market Cap",
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .body2
-                                                .apply(
+                                                .bodyMedium
+                                                ?.apply(
                                                     color: Theme.of(context)
                                                         .hintColor)),
                                   )),
                               new Text("/",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .body2
-                                      .apply(
+                                      .bodyMedium
+                                      ?.apply(
                                           color: Theme.of(context).hintColor)),
                               new InkWell(
                                 onTap: () {
@@ -876,12 +872,12 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                       ? new Text(
                                           marketSortType[1] ? "24h " + downArrow : "24h " + upArrow,
                                           style:
-                                              Theme.of(context).textTheme.body2)
+                                              Theme.of(context).textTheme.bodyMedium)
                                       : new Text("24h",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .body2
-                                              .apply(
+                                              .bodyMedium
+                                              ?.apply(
                                                   color: Theme.of(context)
                                                       .hintColor)),
                                 ),
@@ -910,12 +906,12 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                     marketSortType[1] == true
                                         ? "Price/24h " + downArrow
                                         : "Price/24h " + upArrow,
-                                    style: Theme.of(context).textTheme.body2)
+                                    style: Theme.of(context).textTheme.bodyMedium)
                                 : new Text("Price/24h",
                                     style: Theme.of(context)
                                         .textTheme
-                                        .body2
-                                        .apply(
+                                        .bodyMedium
+                                        ?.apply(
                                             color:
                                                 Theme.of(context).hintColor)),
                           ),
@@ -931,7 +927,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           padding: const EdgeInsets.all(30.0),
                           alignment: Alignment.topCenter,
                           child: new Text("No results found",
-                              style: Theme.of(context).textTheme.caption),
+                              style: Theme.of(context).textTheme.bodySmall),
                         )
                       ]))
                     : new SliverList(

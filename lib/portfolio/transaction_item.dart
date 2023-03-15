@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+
 import 'transaction_sheet.dart';
+
 import '../main.dart';
 
 class TransactionItem extends StatelessWidget {
-  TransactionItem(
-      {this.snapshot, this.symbol, this.currentPrice, this.refreshPage});
   final Map snapshot;
   final String symbol;
   final num currentPrice;
-
   final Function refreshPage;
+
+  TransactionItem(
+      {
+        required this.snapshot,
+        required this.symbol,
+        required this.currentPrice,
+        required this.refreshPage,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +61,7 @@ class TransactionItem extends StatelessWidget {
         onTap: () => showBottomSheet(
             context: context,
             builder: (context) => new TransactionSheet(
+                  key: Key("fixme"),
                   refreshPage,
                   marketListData,
                   editMode: true,
@@ -68,21 +76,21 @@ class TransactionItem extends StatelessWidget {
           TextSpan(
               text: "${snapshot["quantity"]} $symbol",
               style:
-                  Theme.of(context).textTheme.body2.apply(fontWeightDelta: 2)),
-          TextSpan(text: " at ", style: Theme.of(context).textTheme.body1),
+                  Theme.of(context).textTheme.bodyMedium?.apply(fontWeightDelta: 2)),
+          TextSpan(text: " at ", style: Theme.of(context).textTheme.bodyLarge),
           TextSpan(
               text:
                   "\$${num.parse(normalizeNumNoCommas(snapshot["price_usd"])).toString()}",
               style:
-                  Theme.of(context).textTheme.body2.apply(fontWeightDelta: 2)),
+                  Theme.of(context).textTheme.bodyMedium?.apply(fontWeightDelta: 2)),
           TextSpan(
               text: changePercent > 0
                   ? " +" + changePercent.toStringAsFixed(2) + "%"
                   : " " + changePercent.toStringAsFixed(2) + "%",
               style: Theme.of(context)
                   .textTheme
-                  .body2
-                  .apply(color: changePercent > 0 ? Colors.green : Colors.red)),
+                  .bodyMedium
+                  ?.apply(color: changePercent > 0 ? Colors.green : Colors.red)),
         ])),
         subtitle: new Text(
             "$exchange (\$${numCommaParse((snapshot["quantity"] * snapshot["price_usd"]).toStringAsFixed(2))})\n$date"),
@@ -93,7 +101,7 @@ class TransactionItem extends StatelessWidget {
                 child: new Text(snapshot["notes"],
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
-                    style: Theme.of(context).textTheme.caption),
+                    style: Theme.of(context).textTheme.bodySmall),
               )
             : null,
       ),

@@ -26,10 +26,10 @@ class CoinDetails extends StatefulWidget {
 
 class CoinDetailsState extends State<CoinDetails>
     with SingleTickerProviderStateMixin {
-  TabController _tabController;
-  int _tabAmt;
-  List<Widget> _tabBarChildren;
-  String symbol;
+  TabController? _tabController;
+  int _tabAmt = 0;
+  List<Widget> _tabBarChildren = [];
+  String symbol = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -80,7 +80,7 @@ class CoinDetailsState extends State<CoinDetails>
             titleSpacing: 2.0,
             elevation: appBarElevation,
             title: new Text(widget.snapshot["CoinInfo"]["FullName"],
-                style: Theme.of(context).textTheme.title),
+                style: Theme.of(context).textTheme.titleLarge),
             bottom: new PreferredSize(
                 preferredSize: const Size.fromHeight(25.0),
                 child: new Container(
@@ -99,8 +99,8 @@ class CoinDetailsState extends State<CoinDetails>
                       icon: new Icon(Icons.add),
                       onPressed: () {
                         _scaffoldKey.currentState
-                            .showBottomSheet((BuildContext context) {
-                          return new TransactionSheet(() {
+                            ?.showBottomSheet((BuildContext context) {
+                          return new TransactionSheet(key: Key("fixme"), () {
                             setState(() {
                               _refreshTransactions();
                             });
@@ -122,8 +122,8 @@ class CoinDetailsState extends State<CoinDetails>
                 : [aggregateStats(context), exchangeListPage(context)]));
   }
 
-  Map generalStats;
-  List historyOHLCV;
+  Map generalStats = {};
+  List historyOHLCV = [];
 
   String _high = "0";
   String _low = "0";
@@ -154,7 +154,7 @@ class CoinDetailsState extends State<CoinDetails>
 
   Future<Null> getHistoryOHLCV() async {
     var response = await http.get(
-        Uri.encodeFull("https://min-api.cryptocompare.com/data/histo" +
+        Uri.parse(Uri.encodeFull("https://min-api.cryptocompare.com/data/histo" +
             ohlcvWidthOptions[historyTotal][currentOHLCVWidthSetting][3] +
             "?fsym=" +
             symbol +
@@ -163,7 +163,7 @@ class CoinDetailsState extends State<CoinDetails>
                 .toString() +
             "&aggregate=" +
             ohlcvWidthOptions[historyTotal][currentOHLCVWidthSetting][2]
-                .toString()),
+                .toString())),
         headers: {"Accept": "application/json"});
     setState(() {
       historyOHLCV = new JsonDecoder().convert(response.body)["Data"];
@@ -175,7 +175,7 @@ class CoinDetailsState extends State<CoinDetails>
 
   Future<Null> changeOHLCVWidth(int currentSetting) async {
     currentOHLCVWidthSetting = currentSetting;
-    historyOHLCV = null;
+    historyOHLCV = [];
     getHistoryOHLCV();
   }
 
@@ -213,7 +213,7 @@ class CoinDetailsState extends State<CoinDetails>
       historyTotal = total;
       historyAgg = agg;
 
-      historyOHLCV = null;
+      historyOHLCV = [];
     });
     _getGeneralStats();
     await getHistoryOHLCV();
@@ -222,7 +222,7 @@ class CoinDetailsState extends State<CoinDetails>
 
   Widget aggregateStats(BuildContext context) {
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       body: new Container(
                 child: new Column(
                   children: <Widget>[
@@ -241,8 +241,8 @@ class CoinDetailsState extends State<CoinDetails>
                                       : "0"),
                               style: Theme.of(context)
                                   .textTheme
-                                  .body2
-                                  .apply(fontSizeFactor: 2.2)),
+                                  .bodyMedium
+                                  ?.apply(fontSizeFactor: 2.2)),
                           new Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -253,8 +253,8 @@ class CoinDetailsState extends State<CoinDetails>
                                   new Text("Market Cap",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .caption
-                                          .apply(
+                                          .bodySmall
+                                          ?.apply(
                                               color:
                                                   Theme.of(context).hintColor)),
                                   new Padding(
@@ -263,8 +263,8 @@ class CoinDetailsState extends State<CoinDetails>
                                   new Text("24h Volume",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .caption
-                                          .apply(
+                                          .bodySmall
+                                          ?.apply(
                                               color:
                                                   Theme.of(context).hintColor)),
                                 ],
@@ -283,8 +283,8 @@ class CoinDetailsState extends State<CoinDetails>
                                           : "0",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               fontSizeFactor: 1.1,
                                               fontWeightDelta: 2)),
                                   new Text(
@@ -295,8 +295,8 @@ class CoinDetailsState extends State<CoinDetails>
                                           : "0",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .body2
-                                          .apply(
+                                          .bodyMedium
+                                          ?.apply(
                                               fontSizeFactor: 1.1,
                                               fontWeightDelta: 2,
                                               color:
@@ -330,8 +330,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                 new Text("Period",
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body1
-                                                        .apply(
+                                                        .bodyLarge
+                                                        ?.apply(
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
@@ -342,8 +342,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                 new Text(historyTotal,
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body2
-                                                        .apply(
+                                                        .bodyMedium
+                                                        ?.apply(
                                                             fontWeightDelta:
                                                                 2)),
                                                 new Padding(
@@ -359,8 +359,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                             : _change + "%",
                                                         style: Theme.of(context)
                                                             .primaryTextTheme
-                                                            .body2
-                                                            .apply(
+                                                            .bodyMedium
+                                                            ?.apply(
                                                                 color: num.parse(
                                                                             _change) >=
                                                                         0
@@ -376,8 +376,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                 new Text("Candle Width",
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body1
-                                                        .apply(
+                                                        .bodyLarge
+                                                        ?.apply(
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
@@ -392,8 +392,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                         [0],
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .body2
-                                                        .apply(
+                                                        .bodyMedium
+                                                        ?.apply(
                                                             fontWeightDelta: 2))
                                               ],
                                             ),
@@ -411,8 +411,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
-                                                              .body1
-                                                              .apply(
+                                                              .bodyLarge
+                                                              ?.apply(
                                                                   color: Theme.of(
                                                                           context)
                                                                       .hintColor)),
@@ -420,8 +420,8 @@ class CoinDetailsState extends State<CoinDetails>
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
-                                                              .body1
-                                                              .apply(
+                                                              .bodyLarge
+                                                              ?.apply(
                                                                   color: Theme.of(
                                                                           context)
                                                                       .hintColor)),
@@ -439,12 +439,12 @@ class CoinDetailsState extends State<CoinDetails>
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .body2),
+                                                                  .bodyMedium),
                                                       new Text("\$" + _low,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .body2)
+                                                                  .bodyMedium)
                                                     ],
                                                   ),
                                                 ],
@@ -537,7 +537,7 @@ class CoinDetailsState extends State<CoinDetails>
                                       gridLineAmount: 4,
                                       volumeProp: 0.2,
                                       lineWidth: 1.0,
-                                      decreaseColor: Colors.red[600],
+                                      decreaseColor: Colors.red,
                                     )
                                   : new Container(
                                       padding: const EdgeInsets.all(30.0),
@@ -569,14 +569,14 @@ class CoinDetailsState extends State<CoinDetails>
   }
 
   final columnProps = [.3, .3, .25];
-  List exchangeData;
+  List exchangeData = [];
 
   Future<Null> _getExchangeData() async {
     var response = await http.get(
-        Uri.encodeFull(
+        Uri.parse(Uri.encodeFull(
             "https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=" +
                 symbol +
-                "&tsym=USD&limit=1000"),
+                "&tsym=USD&limit=1000")),
         headers: {"Accept": "application/json"});
 
     if (new JsonDecoder().convert(response.body)["Response"] != "Success") {
@@ -653,13 +653,13 @@ class CoinDetailsState extends State<CoinDetails>
                                               ? "Exchange $upArrow"
                                               : "Exchange $downArrow",
                                           style:
-                                              Theme.of(context).textTheme.body2)
+                                              Theme.of(context).textTheme.bodyMedium)
                                       : new Text(
                                           "Exchange",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .body2
-                                              .apply(
+                                              .bodyMedium
+                                              ?.apply(
                                                   color: Theme.of(context)
                                                       .hintColor),
                                         ),
@@ -688,12 +688,12 @@ class CoinDetailsState extends State<CoinDetails>
                                               ? "24h Volume $downArrow"
                                               : "24h Volume $upArrow",
                                           style:
-                                              Theme.of(context).textTheme.body2)
+                                              Theme.of(context).textTheme.bodyMedium)
                                       : new Text("24h Volume",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .body2
-                                              .apply(
+                                              .bodyMedium
+                                              ?.apply(
                                                   color: Theme.of(context)
                                                       .hintColor)),
                                 ),
@@ -725,12 +725,12 @@ class CoinDetailsState extends State<CoinDetails>
                                                     : "Price $upArrow",
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .body2)
+                                                    .bodyMedium)
                                             : new Text("Price",
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .body2
-                                                    .apply(
+                                                    .bodyMedium
+                                                    ?.apply(
                                                         color: Theme.of(context)
                                                             .hintColor)),
                                       ),
@@ -738,8 +738,8 @@ class CoinDetailsState extends State<CoinDetails>
                                     new Text("/",
                                         style: Theme.of(context)
                                             .textTheme
-                                            .body2
-                                            .apply(
+                                            .bodyMedium
+                                            ?.apply(
                                                 color: Theme.of(context)
                                                     .hintColor)),
                                     new InkWell(
@@ -761,12 +761,12 @@ class CoinDetailsState extends State<CoinDetails>
                                                 sortType[1] ? "24h $downArrow" : "24h $upArrow",
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .body2)
+                                                    .bodyMedium)
                                             : new Text("24h",
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .body2
-                                                    .apply(
+                                                    .bodyMedium
+                                                    ?.apply(
                                                         color: Theme.of(context)
                                                             .hintColor)),
                                       ),
@@ -806,12 +806,12 @@ class CoinDetailsState extends State<CoinDetails>
           );
   }
 
-  num value;
-  num cost;
-  num holdings;
-  num net;
-  num netPercent;
-  List transactionList;
+  num value = 0;
+  num cost = 0;
+  num holdings = 0;
+  num net = 0;
+  num netPercent = 0;
+  List transactionList = [];
 
   _refreshTransactions() {
     _sortTransactions();
@@ -872,8 +872,8 @@ class CoinDetailsState extends State<CoinDetails>
                         new Text("\$" + numCommaParse(value.toStringAsFixed(2)),
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(fontSizeFactor: 2.2)),
+                                .bodyMedium
+                                ?.apply(fontSizeFactor: 2.2)),
                       ],
                     ),
                     new Text(
@@ -882,8 +882,8 @@ class CoinDetailsState extends State<CoinDetails>
                             symbol,
                         style: Theme.of(context)
                             .textTheme
-                            .body2
-                            .apply(fontSizeFactor: 1.2)),
+                            .bodyMedium
+                            ?.apply(fontSizeFactor: 1.2)),
                   ],
                 ),
                 new Column(
@@ -905,8 +905,8 @@ class CoinDetailsState extends State<CoinDetails>
                     new Text("\$" + numCommaParse(cost.toStringAsFixed(2)),
                         style: Theme.of(context)
                             .primaryTextTheme
-                            .body2
-                            .apply(fontSizeFactor: 1.5))
+                            .bodyMedium
+                            ?.apply(fontSizeFactor: 1.5))
                   ],
                 ),
               ],

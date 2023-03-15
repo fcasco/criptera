@@ -11,17 +11,17 @@ class TransactionSheet extends StatefulWidget {
   TransactionSheet(
     this.loadPortfolio,
     this.marketListData, {
-    Key key,
-    this.editMode: false,
+    required Key key,
+    this.editMode = false,
     this.snapshot,
-    this.symbol,
+    this.symbol = "???",
   }) : super(key: key);
 
   final Function loadPortfolio;
   final List marketListData;
 
   final bool editMode;
-  final Map snapshot;
+  final Map? snapshot;
   final String symbol;
 
   @override
@@ -40,27 +40,27 @@ class TransactionSheetState extends State<TransactionSheet> {
   FocusNode _notesFocusNode = new FocusNode();
 
   Color errorColor = Colors.red;
-  Color validColor;
+  Color validColor = Colors.green;
 
   int radioValue = 0;
   DateTime pickedDate = new DateTime.now();
   TimeOfDay pickedTime = new TimeOfDay.now();
-  int epochDate;
+  int epochDate = 0;
 
-  List symbolList;
-  Color symbolTextColor;
-  String symbol;
+  List symbolList = [];
+  Color symbolTextColor = Colors.blue;
+  String symbol = "";
 
-  Color quantityTextColor;
-  num quantity;
+  Color quantityTextColor = Colors.blue;
+  num quantity = 0;
 
-  Color priceTextColor;
-  num price;
+  Color priceTextColor = Colors.blue;
+  num price = 0;
 
-  List exchangesList;
-  String exchange;
+  List exchangesList = [];
+  String exchange = "";
 
-  Map totalQuantities;
+  Map totalQuantities = {};
 
   _makeTotalQuantities() {
     totalQuantities = {};
@@ -70,7 +70,7 @@ class TransactionSheetState extends State<TransactionSheet> {
       totalQuantities[symbol] = total;
     });
     if (widget.editMode) {
-      totalQuantities[widget.symbol] -= widget.snapshot["quantity"];
+      totalQuantities[widget.symbol] -= widget.snapshot?["quantity"];
     }
   }
 
@@ -80,7 +80,7 @@ class TransactionSheetState extends State<TransactionSheet> {
   }
 
   Future<Null> _selectDate() async {
-    DateTime pick = await showDatePicker(
+    DateTime? pick = await showDatePicker(
         context: context,
         initialDate: new DateTime.now(),
         firstDate: new DateTime(1950),
@@ -94,7 +94,7 @@ class TransactionSheetState extends State<TransactionSheet> {
   }
 
   Future<Null> _selectTime() async {
-    TimeOfDay pick = await showTimePicker(
+    TimeOfDay? pick = await showTimePicker(
         context: context, initialTime: new TimeOfDay.now());
     if (pick != null) {
       setState(() {
@@ -118,7 +118,7 @@ class TransactionSheetState extends State<TransactionSheet> {
 
     if (symbolList.contains(inputSymbol.toUpperCase())) {
       symbol = inputSymbol.toUpperCase();
-      exchangesList = null;
+      exchangesList = [];
       _getExchangeList();
 
       for (var value in widget.marketListData) {
@@ -135,11 +135,11 @@ class TransactionSheetState extends State<TransactionSheet> {
       symbolTextColor = validColor;
       _checkValidQuantity(_quantityController.text);
     } else {
-      symbol = null;
-      exchangesList = null;
-      exchange = null;
+      symbol = "";
+      exchangesList = [];
+      exchange = "";
       _exchangeController.text = "";
-      price = null;
+      price = 0;
       _priceController.text = "";
       symbolTextColor = errorColor;
       _checkValidQuantity(_quantityController.text);
@@ -151,7 +151,7 @@ class TransactionSheetState extends State<TransactionSheet> {
       quantity = num.parse(quantityString);
       if (quantity <= 0 ||
           radioValue == 1 && totalQuantities[symbol] - quantity < 0) {
-        quantity = null;
+        quantity = 0;
         setState(() {
           quantityTextColor = errorColor;
         });
@@ -161,7 +161,7 @@ class TransactionSheetState extends State<TransactionSheet> {
         });
       }
     } catch (e) {
-      quantity = null;
+      quantity = 0;
       setState(() {
         quantityTextColor = errorColor;
       });
@@ -172,7 +172,7 @@ class TransactionSheetState extends State<TransactionSheet> {
     try {
       price = num.parse(priceString);
       if (price.isNegative) {
-        price = null;
+        price = 0;
         setState(() {
           priceTextColor = errorColor;
         });
@@ -182,7 +182,7 @@ class TransactionSheetState extends State<TransactionSheet> {
         });
       }
     } catch (e) {
-      price = null;
+      price = 0;
       setState(() {
         priceTextColor = errorColor;
       });
@@ -272,7 +272,7 @@ class TransactionSheetState extends State<TransactionSheet> {
         Navigator.of(context).pop();
         jsonFile.writeAsStringSync(json.encode(jsonContent));
 
-        Scaffold.of(context).showSnackBar(new SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           duration: new Duration(seconds: 5),
           content: new Text("Transaction Deleted."),
           action: new SnackBarAction(
@@ -300,10 +300,10 @@ class TransactionSheetState extends State<TransactionSheet> {
 
   Future<Null> _getExchangeList() async {
     var response = await http.get(
-        Uri.encodeFull(
+        Uri.parse(Uri.encodeFull(
             "https://min-api.cryptocompare.com/data/top/exchanges?fsym=" +
                 symbol +
-                "&tsym=USD&limit=100"),
+                "&tsym=USD&limit=100")),
         headers: {"Accept": "application/json"});
 
     exchangesList = [];
@@ -316,27 +316,27 @@ class TransactionSheetState extends State<TransactionSheet> {
     _symbolController.text = widget.symbol;
     _checkValidSymbol(_symbolController.text);
 
-    _priceController.text = widget.snapshot["price_usd"].toString();
+    _priceController.text = (widget.snapshot?["price_usd"].toString() ?? "");
     _checkValidPrice(_priceController.text);
 
-    _quantityController.text = widget.snapshot["quantity"].abs().toString();
+    _quantityController.text = (widget.snapshot?["quantity"].abs().toString() ?? "");
     _checkValidQuantity(_quantityController.text);
 
-    if (widget.snapshot["quantity"].isNegative) {
+    if (widget.snapshot?["quantity"].isNegative) {
       radioValue = 1;
     }
 
-    if (widget.snapshot["exchange"] == "CCCAGG") {
+    if (widget.snapshot?["exchange"] == "CCCAGG") {
       _exchangeController.text = "Aggregated";
     } else {
-      _exchangeController.text = widget.snapshot["exchange"];
+      _exchangeController.text = widget.snapshot?["exchange"];
     }
-    exchange = widget.snapshot["exchange"];
+    exchange = widget.snapshot?["exchange"];
 
-    _notesController.text = widget.snapshot["notes"];
+    _notesController.text = widget.snapshot?["notes"];
 
     pickedDate =
-        new DateTime.fromMillisecondsSinceEpoch(widget.snapshot["time_epoch"]);
+        new DateTime.fromMillisecondsSinceEpoch(widget.snapshot?["time_epoch"]);
     pickedTime = new TimeOfDay.fromDateTime(pickedDate);
   }
 
@@ -356,11 +356,11 @@ class TransactionSheetState extends State<TransactionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    validColor = Theme.of(context).textTheme.body2.color;
+    validColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.green);
     return new Container(
         decoration: new BoxDecoration(
           border: new Border(
-              top: new BorderSide(color: Theme.of(context).bottomAppBarColor)),
+              top: new BorderSide(color: Theme.of(context).colorScheme.primary)),
           color: Theme.of(context).primaryColor,
         ),
         padding: const EdgeInsets.only(
@@ -374,24 +374,24 @@ class TransactionSheetState extends State<TransactionSheet> {
                   children: <Widget>[
 //                    new Container(
 //                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-//                      child: new Text(widget.editMode ? "Edit Transaction" : "Add Transaction", style: Theme.of(context).textTheme.body2.apply(fontSizeFactor: 1.2, fontWeightDelta: 2))
+//                      child: new Text(widget.editMode ? "Edit Transaction" : "Add Transaction", style: Theme.of(context).textTheme.bodyMedium.apply(fontSizeFactor: 1.2, fontWeightDelta: 2))
 //                    ),
                     new Row(
                       children: <Widget>[
                         new Text("Buy",
-                            style: Theme.of(context).textTheme.caption),
+                            style: Theme.of(context).textTheme.bodySmall),
                         new Radio(
                             value: 0,
                             groupValue: radioValue,
-                            onChanged: _handleRadioValueChange,
-                            activeColor: Theme.of(context).buttonColor),
+                            onChanged: (x) => _handleRadioValueChange((x ?? 0)),
+                            activeColor: Theme.of(context).colorScheme.secondary),
                         new Text("Sell",
-                            style: Theme.of(context).textTheme.caption),
+                            style: Theme.of(context).textTheme.bodySmall),
                         new Radio(
                             value: 1,
                             groupValue: radioValue,
-                            onChanged: _handleRadioValueChange,
-                            activeColor: Theme.of(context).buttonColor),
+                            onChanged: (x) => _handleRadioValueChange((x ?? 0)),
+                            activeColor: Theme.of(context).colorScheme.secondary),
                         new Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 6.0)),
@@ -403,7 +403,7 @@ class TransactionSheetState extends State<TransactionSheet> {
                                   pickedDate.day.toString() +
                                   "/" +
                                   pickedDate.year.toString().substring(2),
-                              style: Theme.of(context).textTheme.button),
+                              style: Theme.of(context).textTheme.labelLarge),
                         ),
                         new Padding(
                             padding:
@@ -419,7 +419,7 @@ class TransactionSheetState extends State<TransactionSheet> {
                                     ? pickedTime.minute.toString()
                                     : "0" + pickedTime.minute.toString()) +
                                 (pickedTime.hour >= 12 ? "PM" : "AM"),
-                            style: Theme.of(context).textTheme.button,
+                            style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
                         new Padding(
@@ -443,8 +443,8 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .requestFocus(_quantityFocusNode),
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(color: symbolTextColor),
+                                .bodyMedium
+                                ?.apply(color: symbolTextColor),
                             decoration: new InputDecoration(
                               border: InputBorder.none,
                               hintText: "Symbol",
@@ -463,8 +463,8 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .requestFocus(_priceFocusNode),
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(color: quantityTextColor),
+                                .bodyMedium
+                                ?.apply(color: quantityTextColor),
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
                             decoration: new InputDecoration(
                               border: InputBorder.none,
@@ -484,8 +484,8 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .requestFocus(_notesFocusNode),
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(color: priceTextColor),
+                                .bodyMedium
+                                ?.apply(color: priceTextColor),
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
                             decoration: new InputDecoration(
                                 border: InputBorder.none,
@@ -493,8 +493,8 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 prefixText: "\$",
                                 prefixStyle: Theme.of(context)
                                     .textTheme
-                                    .body2
-                                    .apply(color: priceTextColor)),
+                                    .bodyMedium
+                                    ?.apply(color: priceTextColor)),
                           ),
                         )
                       ],
@@ -538,7 +538,7 @@ class TransactionSheetState extends State<TransactionSheet> {
                               _exchangeController.text == ""
                                   ? "Exchange"
                                   : _exchangeController.text,
-                              style: Theme.of(context).textTheme.body2.apply(
+                              style: Theme.of(context).textTheme.bodyMedium?.apply(
                                   color: _exchangeController.text == ""
                                       ? Theme.of(context).hintColor
                                       : validColor),
@@ -554,8 +554,8 @@ class TransactionSheetState extends State<TransactionSheet> {
                             textCapitalization: TextCapitalization.none,
                             style: Theme.of(context)
                                 .textTheme
-                                .body2
-                                .apply(color: validColor),
+                                .bodyMedium
+                                ?.apply(color: validColor),
                             keyboardType: TextInputType.text,
                             decoration: new InputDecoration(
                                 border: InputBorder.none, hintText: "Notes"),

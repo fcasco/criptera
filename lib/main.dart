@@ -15,25 +15,26 @@ const double appBarElevation = 1.0;
 
 bool shortenOn = false;
 
-List marketListData;
-Map portfolioMap;
-List portfolioDisplay;
-Map totalPortfolioStats;
+List marketListData = [];
+Map portfolioMap = {};
+List portfolioDisplay = [];
+Map totalPortfolioStats = {};
 
-bool isIOS;
+bool isIOS = false;
 String upArrow = "⬆";
 String downArrow = "⬇";
 
-int lastUpdate;
+int lastUpdate = 0;
 Future<Null> getMarketData() async {
   int pages = 5;
   List tempMarketListData = [];
 
   Future<Null> _pullData(page) async {
     var response = await http.get(
-        Uri.encodeFull("https://min-api.cryptocompare.com/data/top/mktcapfull?tsym=USD&limit=100" +
+        Uri.parse(
+          Uri.encodeFull("https://min-api.cryptocompare.com/data/top/mktcapfull?tsym=USD&limit=100" +
             "&page=" +
-            page.toString()),
+            page.toString())),
         headers: {"Accept": "application/json"});
 
     List rawMarketListData = new JsonDecoder().convert(response.body)["Data"];
@@ -42,7 +43,7 @@ Future<Null> getMarketData() async {
 
   List<Future> futures = [];
   for (int i = 0; i < pages; i++) {
-    futures.add(_pullData(i));                                       
+    futures.add(_pullData(i));
   }
   await Future.wait(futures);
 
@@ -75,9 +76,6 @@ void main() async {
       jsonFile.writeAsStringSync("{}");
       portfolioMap = {};
     }
-    if (portfolioMap == null) {
-      portfolioMap = {};
-    }
     jsonFile = new File(directory.path + "/marketData.json");
     if (jsonFile.existsSync()) {
       marketListData = json.decode(jsonFile.readAsStringSync());
@@ -94,12 +92,12 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getBool("shortenOn") != null &&
       prefs.getString("themeMode") != null) {
-    shortenOn = prefs.getBool("shortenOn");
-    themeMode = prefs.getString("themeMode");
-    darkOLED = prefs.getBool("darkOLED");
+    shortenOn = prefs.getBool("shortenOn")! | false;
+    themeMode = (prefs.getString("themeMode") ?? "default");
+    darkOLED = prefs.getBool("darkOLED")! | false;
   }
 
-  runApp(new TraceApp(themeMode, darkOLED));
+  runApp(new CripteraApp(themeMode, darkOLED));
 }
 
 numCommaParse(numString) {
@@ -129,8 +127,6 @@ numCommaParse(numString) {
 }
 
 normalizeNum(num input) {
-  if (input == null) {
-    input = 0;}
   if (input >= 100000) {
     return numCommaParse(input.round().toString());
   } else if (input >= 1000) {
@@ -141,8 +137,6 @@ normalizeNum(num input) {
 }
 
 normalizeNumNoCommas(num input) {
-  if (input == null) {
-    input = 0;}
   if (input >= 1000) {
     return input.toStringAsFixed(2);
   } else {
@@ -150,19 +144,19 @@ normalizeNumNoCommas(num input) {
   }
 }
 
-class TraceApp extends StatefulWidget {
-  TraceApp(this.themeMode, this.darkOLED);
+class CripteraApp extends StatefulWidget {
+  CripteraApp(this.themeMode, this.darkOLED);
   final themeMode;
   final darkOLED;
 
   @override
-  TraceAppState createState() => new TraceAppState();
+  CripteraAppState createState() => new CripteraAppState();
 }
 
-class TraceAppState extends State<TraceApp> {
-  bool darkEnabled;
-  String themeMode;
-  bool darkOLED;
+class CripteraAppState extends State<CripteraApp> {
+  bool darkEnabled = true;
+  String themeMode = "default";
+  bool darkOLED = false;
 
   void savePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -240,7 +234,7 @@ class TraceAppState extends State<TraceApp> {
     accentColor: Colors.purpleAccent[100],
     primaryColor: Colors.white,
     primaryColorLight: Colors.purple[700],
-    textSelectionHandleColor: Colors.purple[700],
+    // FIXME: textSelectionHandleColor: Colors.purple[700],
     dividerColor: Colors.grey[200],
     bottomAppBarColor: Colors.grey[200],
     buttonColor: Colors.purple[700],
@@ -256,7 +250,7 @@ class TraceAppState extends State<TraceApp> {
     accentColor: Colors.deepPurpleAccent[100],
     primaryColor: Color.fromRGBO(50, 50, 57, 1.0),
     primaryColorLight: Colors.deepPurpleAccent[100],
-    textSelectionHandleColor: Colors.deepPurpleAccent[100],
+    // FIXME: textSelectionHandleColor: Colors.deepPurpleAccent[100],
     buttonColor: Colors.deepPurpleAccent[100],
     iconTheme: new IconThemeData(color: Colors.white),
     accentIconTheme: new IconThemeData(color: Colors.deepPurpleAccent[100]),
@@ -278,7 +272,7 @@ class TraceAppState extends State<TraceApp> {
     dividerColor: Color.fromRGBO(20, 20, 20, 1.0),
     bottomAppBarColor: Color.fromRGBO(19, 19, 19, 1.0),
     dialogBackgroundColor: Colors.black,
-    textSelectionHandleColor: Colors.deepPurpleAccent[100],
+    // FIXME: textSelectionHandleColor: Colors.deepPurpleAccent[100],
     iconTheme: new IconThemeData(color: Colors.white),
   );
 
@@ -302,7 +296,7 @@ class TraceAppState extends State<TraceApp> {
       color: darkEnabled
           ? darkOLED ? darkThemeOLED.primaryColor : darkTheme.primaryColor
           : lightTheme.primaryColor,
-      title: "Trace",
+      title: "Criptera",
       home: new Tabs(
         savePreferences: savePreferences,
         toggleTheme: toggleTheme,

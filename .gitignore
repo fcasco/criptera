@@ -13,3 +13,4 @@ key.jks
 pubspec.lock
 android/key.properties
 playstore/
+tags

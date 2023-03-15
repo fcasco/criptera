@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui show PointMode;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Strategy used when filling the area of a sparkline.
@@ -54,18 +53,18 @@ enum PointsMode {
 class Sparkline extends StatelessWidget {
   /// Creates a widget that represents provided [data] in a Sparkline chart.
   Sparkline({
-    Key key,
-    @required this.data,
+    Key? key,
+    required this.data,
     this.lineWidth = 2.0,
     this.lineColor = Colors.lightBlue,
-    this.lineGradient,
+    required this.lineGradient,
     this.pointsMode = PointsMode.none,
     this.pointSize = 4.0,
     this.pointColor = const Color(0xFF0277BD), //Colors.lightBlue[800]
     this.sharpCorners = false,
     this.fillMode = FillMode.none,
     this.fillColor = const Color(0xFF81D4FA), //Colors.lightBlue[200]
-    this.fillGradient,
+    required this.fillGradient,
     this.fallbackHeight = 100.0,
     this.fallbackWidth = 300.0,
     this.enableGridLines = false,
@@ -213,22 +212,22 @@ class Sparkline extends StatelessWidget {
 
 class _SparklinePainter extends CustomPainter {
   _SparklinePainter(this.dataPoints,
-      {@required this.lineWidth,
-      @required this.lineColor,
-      this.lineGradient,
-      @required this.sharpCorners,
-      @required this.fillMode,
-      @required this.fillColor,
-      this.fillGradient,
-      @required this.pointsMode,
-      @required this.pointSize,
-      @required this.pointColor,
-      @required this.enableGridLines,
-      this.gridLineColor,
-      this.gridLineAmount,
-      this.gridLineWidth,
-      this.gridLineLabelColor,
-      this.labelPrefix});
+      {required this.lineWidth,
+      required this.lineColor,
+      required this.lineGradient,
+      required this.sharpCorners,
+      required this.fillMode,
+      required this.fillColor,
+      required this.fillGradient,
+      required this.pointsMode,
+      required this.pointSize,
+      required this.pointColor,
+      required this.enableGridLines,
+      this.gridLineColor = Colors.red,
+      this.gridLineAmount = 1,
+      this.gridLineWidth = 1,
+      this.gridLineLabelColor = Colors.red,
+      this.labelPrefix = ""});
 
   final List<double> dataPoints;
 
@@ -246,8 +245,8 @@ class _SparklinePainter extends CustomPainter {
   final double pointSize;
   final Color pointColor;
 
-  double _max;
-  double _min;
+  double _max = 0;
+  double _min = 0;
 
   final bool enableGridLines;
   final Color gridLineColor;
@@ -305,10 +304,11 @@ class _SparklinePainter extends CustomPainter {
     final Path path = new Path();
     final List<Offset> points = <Offset>[];
 
-    Offset startPoint;
+    Offset startPoint = Offset(0, 0);
 
     if (enableGridLines) {
-      width = size.width - gridLineTextPainters[0].text.text.length * 6;
+      // FIXME: width = size.width - gridLineTextPainters[0].text?.text.length * 6;
+      width = 1;
       Paint gridPaint = new Paint()
         ..color = gridLineColor
         ..strokeWidth = gridLineWidth;
