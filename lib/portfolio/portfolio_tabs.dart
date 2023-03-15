@@ -408,7 +408,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                   padding:
                       const EdgeInsets.only(top: 16.0, left: 4.0, right: 2.0),
                   height: MediaQuery.of(context).size.height * .6,
-                  child: timelineData != null
+                  child: timelineData.length > 0
                       ? new Container(
                           child: timelineData.last != 0.0
                             ? new Sparkline(
