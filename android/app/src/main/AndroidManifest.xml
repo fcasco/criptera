@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.trentpiercy.trace"
+    package="com.criptera.app"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -16,7 +16,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Trace"
+        android:label="Criptera"
         android:icon="@mipmap/ic_launcher">
 
         <activity
