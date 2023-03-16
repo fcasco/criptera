@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.trentpiercy.trace"
+        applicationId "com.criptera.app"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 10

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.trentpiercy" "\0"
-            VALUE "FileDescription", "trace" "\0"
+            VALUE "CompanyName", "com.criptera" "\0"
+            VALUE "FileDescription", "criptera" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "trace" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.trentpiercy. All rights reserved." "\0"
-            VALUE "OriginalFilename", "trace.exe" "\0"
-            VALUE "ProductName", "trace" "\0"
+            VALUE "InternalName", "criptera" "\0"
+            VALUE "LegalCopyright", "" "\0"
+            VALUE "OriginalFilename", "criptera.exe" "\0"
+            VALUE "ProductName", "criptera" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

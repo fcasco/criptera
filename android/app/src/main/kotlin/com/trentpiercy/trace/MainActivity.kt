@@ -1,4 +1,4 @@
-package com.trentpiercy.trace
+package com.criptera.app
 
 import io.flutter.embedding.android.FlutterActivity
 
