@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info/package_info.dart';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'main.dart';
 
 class SettingsPage extends StatefulWidget {
