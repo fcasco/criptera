@@ -2,22 +2,23 @@ name: Criptera
 description: Cryptocurrency portfolio and market explorer.
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.0.18
-  path_provider: ^2.0.13
-  url_launcher: ^6.1.10
-  http: ^0.13.5
-  package_info: ^2.0.2
-  awesome_circular_chart: ^1.0.0
+  shared_preferences: ^2.5.3
+  path_provider: ^2.1.5
+  url_launcher: ^6.3.1
+  http: ^1.4.0
+  package_info_plus: ^5.0.1
+  awesome_circular_chart: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.12.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^5.0.0
 
 flutter_icons:
   android: false

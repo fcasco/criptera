@@ -796,7 +796,7 @@ class CoinDetailsState extends State<CoinDetails>
                           padding: const EdgeInsets.all(30.0),
                           alignment: Alignment.topCenter,
                           child: new Text("No exchanges found :(",
-                              style: Theme.of(context).textTheme.caption),
+                              style: Theme.of(context).textTheme.bodySmall),
                         )
                       ]))
                     ],
@@ -865,7 +865,7 @@ class CoinDetailsState extends State<CoinDetails>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Text("Total Value",
-                        style: Theme.of(context).textTheme.caption),
+                        style: Theme.of(context).textTheme.bodySmall),
                     new Row(
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
@@ -890,7 +890,7 @@ class CoinDetailsState extends State<CoinDetails>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Text("Total Net",
-                        style: Theme.of(context).textTheme.caption),
+                        style: Theme.of(context).textTheme.bodySmall),
                     new PercentDollarChange(
                       exact: net,
                       percent: netPercent,
@@ -901,7 +901,7 @@ class CoinDetailsState extends State<CoinDetails>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     new Text("Total Cost",
-                        style: Theme.of(context).textTheme.caption),
+                        style: Theme.of(context).textTheme.bodySmall),
                     new Text("\$" + numCommaParse(cost.toStringAsFixed(2)),
                         style: Theme.of(context)
                             .primaryTextTheme

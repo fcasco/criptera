@@ -73,17 +73,7 @@ class Sparkline extends StatelessWidget {
     this.gridLineWidth = 0.5,
     this.gridLineLabelColor = Colors.grey,
     this.labelPrefix = "\$",
-  })  : assert(data != null),
-        assert(lineWidth != null),
-        assert(lineColor != null),
-        assert(pointsMode != null),
-        assert(pointSize != null),
-        assert(pointColor != null),
-        assert(sharpCorners != null),
-        assert(fillMode != null),
-        assert(fillColor != null),
-        assert(fallbackHeight != null),
-        assert(fallbackWidth != null),
+  })  :
         super(key: key);
 
   /// List of values to be represented by the sparkline.
@@ -307,8 +297,7 @@ class _SparklinePainter extends CustomPainter {
     Offset startPoint = Offset(0, 0);
 
     if (enableGridLines) {
-      // FIXME: width = size.width - gridLineTextPainters[0].text?.text.length * 6;
-      width = 1;
+      width = size.width - gridLineTextPainters[0].text!.text!.length * 6;
       Paint gridPaint = new Paint()
         ..color = gridLineColor
         ..strokeWidth = gridLineWidth;

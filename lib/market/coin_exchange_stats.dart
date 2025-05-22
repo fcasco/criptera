@@ -179,7 +179,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
                               new Text("24h Volume",
-                                  style: Theme.of(context).textTheme.caption),
+                                  style: Theme.of(context).textTheme.bodySmall),
                               new Text(
                                   "\$" + numCommaParse(exchangeData["VOLUME24HOURTO"].toStringAsFixed(0)),
                                   style: Theme.of(context)

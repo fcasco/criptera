@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'tabs.dart';
 import 'settings_page.dart';
@@ -15,33 +16,33 @@ const double appBarElevation = 1.0;
 
 bool shortenOn = false;
 
-List marketListData = [];
-Map portfolioMap = {};
-List portfolioDisplay = [];
-Map totalPortfolioStats = {};
+List<dynamic> marketListData = [];
+Map<String, dynamic> portfolioMap = {};
+List<dynamic> portfolioDisplay = [];
+Map<String, dynamic> totalPortfolioStats = {};
 
 bool isIOS = false;
 String upArrow = "⬆";
 String downArrow = "⬇";
 
 int lastUpdate = 0;
-Future<Null> getMarketData() async {
+Future<void> getMarketData() async {
   int pages = 5;
-  List tempMarketListData = [];
+  List<dynamic> tempMarketListData = [];
 
-  Future<Null> _pullData(page) async {
+  Future<void> _pullData(int page) async {
     var response = await http.get(
         Uri.parse(
-          Uri.encodeFull("https://min-api.cryptocompare.com/data/top/mktcapfull?tsym=USD&limit=100" +
+          "https://min-api.cryptocompare.com/data/top/mktcapfull?tsym=USD&limit=100" +
             "&page=" +
-            page.toString())),
+            page.toString()),
         headers: {"Accept": "application/json"});
 
-    List rawMarketListData = new JsonDecoder().convert(response.body)["Data"];
+    List<dynamic> rawMarketListData = json.decode(response.body)["Data"] as List<dynamic>;
     tempMarketListData.addAll(rawMarketListData);
   }
 
-  List<Future> futures = [];
+  List<Future<void>> futures = [];
   for (int i = 0; i < pages; i++) {
     futures.add(_pullData(i));
   }
@@ -49,16 +50,15 @@ Future<Null> getMarketData() async {
 
   marketListData = [];
   // Filter out lack of financial data
-  for (Map coin in tempMarketListData) {
+  for (Map<String, dynamic> coin in tempMarketListData.cast<Map<String, dynamic>>()) {
     if (coin.containsKey("RAW") && coin.containsKey("CoinInfo")) {
       marketListData.add(coin);
     }
   }
 
-  getApplicationDocumentsDirectory().then((Directory directory) async {
-    File jsonFile = new File(directory.path + "/marketData.json");
-    jsonFile.writeAsStringSync(json.encode(marketListData));
-  });
+  final Directory directory = await getApplicationDocumentsDirectory();
+  File jsonFile = File(directory.path + "/marketData.json");
+  jsonFile.writeAsStringSync(json.encode(marketListData));
   print("Got new market data.");
 
   lastUpdate = DateTime.now().millisecondsSinceEpoch;
@@ -67,43 +67,42 @@ Future<Null> getMarketData() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await getApplicationDocumentsDirectory().then((Directory directory) async {
-    File jsonFile = new File(directory.path + "/portfolio.json");
-    if (jsonFile.existsSync()) {
-      portfolioMap = json.decode(jsonFile.readAsStringSync());
-    } else {
-      jsonFile.createSync();
-      jsonFile.writeAsStringSync("{}");
-      portfolioMap = {};
-    }
-    jsonFile = new File(directory.path + "/marketData.json");
-    if (jsonFile.existsSync()) {
-      marketListData = json.decode(jsonFile.readAsStringSync());
-    } else {
-      jsonFile.createSync();
-      jsonFile.writeAsStringSync("[]");
-      marketListData = [];
-      // getMarketData(); ?does this work?
-    }
-  });
+  final Directory directory = await getApplicationDocumentsDirectory();
+  File jsonFile = File(directory.path + "/portfolio.json");
+  if (jsonFile.existsSync()) {
+    portfolioMap = json.decode(jsonFile.readAsStringSync()) as Map<String, dynamic>;
+  } else {
+    jsonFile.createSync();
+    jsonFile.writeAsStringSync("{}");
+    portfolioMap = {};
+  }
+  jsonFile = File(directory.path + "/marketData.json");
+  if (jsonFile.existsSync()) {
+    marketListData = json.decode(jsonFile.readAsStringSync()) as List<dynamic>;
+  } else {
+    jsonFile.createSync();
+    jsonFile.writeAsStringSync("[]");
+    marketListData = [];
+    // getMarketData(); ?does this work?
+  }
 
   String themeMode = "Automatic";
   bool darkOLED = false;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getBool("shortenOn") != null &&
       prefs.getString("themeMode") != null) {
-    shortenOn = prefs.getBool("shortenOn")! | false;
-    themeMode = (prefs.getString("themeMode") ?? "default");
-    darkOLED = prefs.getBool("darkOLED")! | false;
+    shortenOn = prefs.getBool("shortenOn") ?? false;
+    themeMode = prefs.getString("themeMode") ?? "default";
+    darkOLED = prefs.getBool("darkOLED") ?? false;
   }
 
-  runApp(new CripteraApp(themeMode, darkOLED));
+  runApp(CripteraApp(themeMode, darkOLED));
 }
 
-numCommaParse(numString) {
+String numCommaParse(String? numString) {
   if (shortenOn) {
     String str = num.parse(numString ?? "0").round().toString().replaceAllMapped(
-        new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},");
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]!},");
     List<String> strList = str.split(",");
 
     if (strList.length > 3) {
@@ -118,15 +117,15 @@ numCommaParse(numString) {
           "M";
     } else {
       return num.parse(numString ?? "0").toString().replaceAllMapped(
-          new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},");
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]!},");
     }
   }
 
   return num.parse(numString ?? "0").toString().replaceAllMapped(
-      new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},");
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]!},");
 }
 
-normalizeNum(num input) {
+String normalizeNum(num input) {
   if (input >= 100000) {
     return numCommaParse(input.round().toString());
   } else if (input >= 1000) {
@@ -136,7 +135,7 @@ normalizeNum(num input) {
   }
 }
 
-normalizeNumNoCommas(num input) {
+String normalizeNumNoCommas(num input) {
   if (input >= 1000) {
     return input.toStringAsFixed(2);
   } else {
@@ -145,27 +144,27 @@ normalizeNumNoCommas(num input) {
 }
 
 class CripteraApp extends StatefulWidget {
-  CripteraApp(this.themeMode, this.darkOLED);
-  final themeMode;
-  final darkOLED;
+  const CripteraApp(this.themeMode, this.darkOLED);
+  final String themeMode;
+  final bool darkOLED;
 
   @override
-  CripteraAppState createState() => new CripteraAppState();
+  CripteraAppState createState() => CripteraAppState();
 }
 
 class CripteraAppState extends State<CripteraApp> {
   bool darkEnabled = true;
-  String themeMode = "default";
-  bool darkOLED = false;
+  late String themeMode;
+  late bool darkOLED;
 
-  void savePreferences() async {
+  Future<void> savePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("themeMode", themeMode);
     prefs.setBool("shortenOn", shortenOn);
     prefs.setBool("darkOLED", darkOLED);
   }
 
-  toggleTheme() {
+  void toggleTheme() {
     switch (themeMode) {
       case "Automatic":
         themeMode = "Dark";
@@ -181,10 +180,10 @@ class CripteraAppState extends State<CripteraApp> {
     savePreferences();
   }
 
-  setDarkEnabled() {
+  void setDarkEnabled() {
     switch (themeMode) {
       case "Automatic":
-        int nowHour = new DateTime.now().hour;
+        int nowHour = DateTime.now().hour;
         if (nowHour > 6 && nowHour < 20) {
           darkEnabled = false;
         } else {
@@ -201,13 +200,13 @@ class CripteraAppState extends State<CripteraApp> {
     setNavBarColor();
   }
 
-  handleUpdate() {
+  void handleUpdate() {
     setState(() {
       setDarkEnabled();
     });
   }
 
-  switchOLED({state}) {
+  void switchOLED({bool? state}) {
     setState(() {
       darkOLED = state ?? !darkOLED;
     });
@@ -215,7 +214,7 @@ class CripteraAppState extends State<CripteraApp> {
     savePreferences();
   }
 
-  setNavBarColor() async {
+  Future<void> setNavBarColor() async {
     if (darkEnabled) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
           systemNavigationBarIconBrightness: Brightness.light,
@@ -231,29 +230,49 @@ class CripteraAppState extends State<CripteraApp> {
   final ThemeData lightTheme = new ThemeData(
     primarySwatch: Colors.purple,
     brightness: Brightness.light,
-    accentColor: Colors.purpleAccent[100],
+    colorScheme: ColorScheme.light(
+      secondary: Colors.purpleAccent[100]!,
+      primary: Colors.purple,
+    ),
     primaryColor: Colors.white,
     primaryColorLight: Colors.purple[700],
-    // FIXME: textSelectionHandleColor: Colors.purple[700],
     dividerColor: Colors.grey[200],
     bottomAppBarColor: Colors.grey[200],
-    buttonColor: Colors.purple[700],
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.purple[700],
+      ),
+    ),
     iconTheme: new IconThemeData(color: Colors.white),
     primaryIconTheme: new IconThemeData(color: Colors.black),
-    accentIconTheme: new IconThemeData(color: Colors.purple[700]),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.purple[700],
+      ),
+    ),
     disabledColor: Colors.grey[500],
   );
 
   final ThemeData darkTheme = new ThemeData(
     primarySwatch: Colors.purple,
     brightness: Brightness.dark,
-    accentColor: Colors.deepPurpleAccent[100],
+    colorScheme: ColorScheme.dark(
+      secondary: Colors.deepPurpleAccent[100]!,
+      primary: Colors.purple,
+    ),
     primaryColor: Color.fromRGBO(50, 50, 57, 1.0),
     primaryColorLight: Colors.deepPurpleAccent[100],
-    // FIXME: textSelectionHandleColor: Colors.deepPurpleAccent[100],
-    buttonColor: Colors.deepPurpleAccent[100],
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.deepPurpleAccent[100],
+      ),
+    ),
     iconTheme: new IconThemeData(color: Colors.white),
-    accentIconTheme: new IconThemeData(color: Colors.deepPurpleAccent[100]),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.deepPurpleAccent[100],
+      ),
+    ),
     cardColor: Color.fromRGBO(55, 55, 55, 1.0),
     dividerColor: Color.fromRGBO(60, 60, 60, 1.0),
     bottomAppBarColor: Colors.black26,
@@ -261,26 +280,38 @@ class CripteraAppState extends State<CripteraApp> {
 
   final ThemeData darkThemeOLED = new ThemeData(
     brightness: Brightness.dark,
-    accentColor: Colors.deepPurpleAccent[100],
+    colorScheme: ColorScheme.dark(
+      secondary: Colors.deepPurpleAccent[100]!,
+      primary: Colors.deepPurple,
+      background: Colors.black,
+      surface: Colors.black,
+    ),
     primaryColor: Color.fromRGBO(5, 5, 5, 1.0),
-    backgroundColor: Colors.black,
+    scaffoldBackgroundColor: Colors.black,
     canvasColor: Colors.black,
     primaryColorLight: Colors.deepPurple[300],
-    buttonColor: Colors.deepPurpleAccent[100],
-    accentIconTheme: new IconThemeData(color: Colors.deepPurple[300]),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.deepPurpleAccent[100],
+      ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.deepPurple[300],
+      ),
+    ),
     cardColor: Color.fromRGBO(16, 16, 16, 1.0),
     dividerColor: Color.fromRGBO(20, 20, 20, 1.0),
     bottomAppBarColor: Color.fromRGBO(19, 19, 19, 1.0),
     dialogBackgroundColor: Colors.black,
-    // FIXME: textSelectionHandleColor: Colors.deepPurpleAccent[100],
     iconTheme: new IconThemeData(color: Colors.white),
   );
 
   @override
   void initState() {
     super.initState();
-    themeMode = widget.themeMode ?? "Automatic";
-    darkOLED = widget.darkOLED ?? false;
+    themeMode = widget.themeMode;
+    darkOLED = widget.darkOLED;
     setDarkEnabled();
   }
 
@@ -292,12 +323,12 @@ class CripteraAppState extends State<CripteraApp> {
       downArrow = "↓";
     }
 
-    return new MaterialApp(
+    return MaterialApp(
       color: darkEnabled
           ? darkOLED ? darkThemeOLED.primaryColor : darkTheme.primaryColor
           : lightTheme.primaryColor,
       title: "Criptera",
-      home: new Tabs(
+      home: Tabs(
         savePreferences: savePreferences,
         toggleTheme: toggleTheme,
         handleUpdate: handleUpdate,
@@ -308,7 +339,7 @@ class CripteraAppState extends State<CripteraApp> {
       ),
       theme: darkEnabled ? darkOLED ? darkThemeOLED : darkTheme : lightTheme,
       routes: <String, WidgetBuilder>{
-        "/settings": (BuildContext context) => new SettingsPage(
+        "/settings": (BuildContext context) => SettingsPage(
               savePreferences: savePreferences,
               toggleTheme: toggleTheme,
               darkEnabled: darkEnabled,

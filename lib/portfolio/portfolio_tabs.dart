@@ -284,7 +284,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               new Text("Portfolio Value",
-                                  style: Theme.of(context).textTheme.caption),
+                                  style: Theme.of(context).textTheme.bodySmall),
                               new Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
@@ -435,7 +435,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                       : new Container(
                           alignment: Alignment.center,
                           child: new Text("Transactions too recent or in the future.",
-                              style: Theme.of(context).textTheme.caption))
+                              style: Theme.of(context).textTheme.bodySmall))
                         )
                       : new Container(
                           alignment: Alignment.center,
@@ -445,7 +445,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                   padding:
                       const EdgeInsets.only(top: 16.0, left: 8.0, bottom: 4.0),
                   child: new Text("All Transactions",
-                      style: Theme.of(context).textTheme.caption),
+                      style: Theme.of(context).textTheme.bodySmall),
                 )
               ])),
               new SliverList(
@@ -464,7 +464,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
             alignment: Alignment.topCenter,
             padding: const EdgeInsets.symmetric(vertical: 40.0),
             child: new Text("Your portfolio is empty. Add a transaction!",
-                style: Theme.of(context).textTheme.caption));
+                style: Theme.of(context).textTheme.bodySmall));
   }
 
   final columnProps = [.2, .3, .3];
@@ -591,7 +591,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             new Text("Total Net",
-                                style: Theme.of(context).textTheme.caption),
+                                style: Theme.of(context).textTheme.bodySmall),
                             new PercentDollarChange(
                               exact: net,
                               percent: netPercent,
