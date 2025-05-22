@@ -16,20 +16,20 @@ class PortfolioTabs extends StatefulWidget {
   final Function makePortfolioDisplay;
 
   @override
-  PortfolioTabsState createState() => new PortfolioTabsState();
+  PortfolioTabsState createState() => PortfolioTabsState();
 }
 
 class PortfolioTabsState extends State<PortfolioTabs>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController?.animateTo(widget.tab);
-    if (timelineData == null) {
+    if (timelineData.isEmpty) {
       _getTimelineData();
     }
     _makeColorMap();
@@ -39,41 +39,41 @@ class PortfolioTabsState extends State<PortfolioTabs>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
-        appBar: new PreferredSize(
+        appBar: PreferredSize(
           preferredSize: const Size.fromHeight(75.0),
-          child: new AppBar(
+          child: AppBar(
             backgroundColor: Theme.of(context).primaryColor,
             titleSpacing: 0.0,
             elevation: appBarElevation,
             title:
-                new Text("Portfolio", style: Theme.of(context).textTheme.titleMedium),
-            bottom: new PreferredSize(
+                Text("Portfolio", style: Theme.of(context).textTheme.titleMedium),
+            bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(25.0),
-                child: new Container(
+                child: Container(
                     height: 30.0,
-                    child: new TabBar(
+                    child: TabBar(
                       controller: _tabController,
                       // indicatorColor: Theme.of(context).accentIconTheme.color,
                       indicatorWeight: 2.0,
                       unselectedLabelColor: Theme.of(context).disabledColor,
                       labelColor: Theme.of(context).primaryIconTheme.color,
                       tabs: <Widget>[
-                        new Tab(text: "Timeline"),
-                        new Tab(text: "Breakdown"),
+                        Tab(text: "Timeline"),
+                        Tab(text: "Breakdown"),
                       ],
                     ))),
           ),
         ),
-        body: new TabBarView(
+        body: TabBarView(
           controller: _tabController,
           children: <Widget>[_timeline(context), _breakdown(context)],
         ));
   }
 
   final GlobalKey<AnimatedCircularChartState> _chartKey =
-      new GlobalKey<AnimatedCircularChartState>();
+      GlobalKey<AnimatedCircularChartState>();
 
   num value = 0;
   List<double> timelineData = [];
@@ -143,13 +143,13 @@ class PortfolioTabsState extends State<PortfolioTabs>
     _sortPortfolioDisplay();
     if (_tabController?.index == 1) {
       _chartKey.currentState?.updateData(
-          [new CircularStackEntry(segments, rankKey: "Portfolio Breakdown")]);
+          [CircularStackEntry(segments, rankKey: "Portfolio Breakdown")]);
     }
     setState(() {});
   }
 
   Map<int, double> timedData = {};
-  DateTime oldestPoint = new DateTime.now();
+  DateTime oldestPoint = DateTime.now();
   List<num> times = [];
 
   _getTimelineData() async {
@@ -176,7 +176,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
   }
 
   Future<Null> _pullData(coin) async {
-    num msAgo = new DateTime.now().millisecondsSinceEpoch - coin["oldest"];
+    num msAgo = DateTime.now().millisecondsSinceEpoch - coin["oldest"];
     int limit = periodOptions[periodSetting]["limit"];
     num periodInMs = limit * periodOptions[periodSetting]["unit_in_ms"];
 
@@ -204,7 +204,8 @@ class PortfolioTabsState extends State<PortfolioTabs>
       num averagePrice = (point["open"] + point["close"]) / 2;
 
       portfolioMap[coin["symbol"]].forEach((transaction) {
-        if (timedData[point["time"]] == null) {
+        // Initialize the time point if it doesn't exist
+        if (!timedData.containsKey(point["time"])) {
           timedData[point["time"]] = 0.0;
         }
 
@@ -218,14 +219,14 @@ class PortfolioTabsState extends State<PortfolioTabs>
 
   _finalizeTimelineData() {
     num oldestInData = times.reduce(min);
-    num oldestInRange = new DateTime.now().millisecondsSinceEpoch -
+    num oldestInRange = DateTime.now().millisecondsSinceEpoch -
         periodOptions[periodSetting]["unit_in_ms"] *
             periodOptions[periodSetting]["limit"];
 
     if (oldestInData > oldestInRange || periodSetting == "All") {
-      oldestPoint = new DateTime.fromMillisecondsSinceEpoch(oldestInData.toInt());
+      oldestPoint = DateTime.fromMillisecondsSinceEpoch(oldestInData.toInt());
     } else {
-      oldestPoint = new DateTime.fromMillisecondsSinceEpoch(oldestInRange.toInt());
+      oldestPoint = DateTime.fromMillisecondsSinceEpoch(oldestInRange.toInt());
     }
 
     timelineData = [];
@@ -269,26 +270,26 @@ class PortfolioTabsState extends State<PortfolioTabs>
   Widget _timeline(BuildContext context) {
     _makeTransactionList();
     return portfolioMap.isNotEmpty
-        ? new RefreshIndicator(
+        ? RefreshIndicator(
             onRefresh: _refresh,
-            child: new CustomScrollView(slivers: <Widget>[
-              new SliverList(
-                  delegate: new SliverChildListDelegate(<Widget>[
-                new Container(
+            child: CustomScrollView(slivers: <Widget>[
+              SliverList(
+                  delegate: SliverChildListDelegate(<Widget>[
+                Container(
                     padding: const EdgeInsets.all(10.0),
-                    child: new Row(
+                    child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          new Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              new Text("Portfolio Value",
+                              Text("Portfolio Value",
                                   style: Theme.of(context).textTheme.bodySmall),
-                              new Row(
+                              Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
-                                  new Text(
+                                  Text(
                                       "\$" +
                                           numCommaParse(
                                               value.toStringAsFixed(2)),
@@ -296,76 +297,70 @@ class PortfolioTabsState extends State<PortfolioTabs>
                                           .textTheme
                                           .bodyMedium
                                           ?.apply(fontSizeFactor: 2.2)),
-                                  new Padding(
+                                  Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 3.0)),
-                                  timelineData != null
-                                      ? new PercentDollarChange(
-                                          percent: changePercent,
-                                          exact: changeAmt,
-                                        )
-                                      : new Container(),
+                                  PercentDollarChange(
+                                    percent: changePercent,
+                                    exact: changeAmt,
+                                  ),
                                 ],
                               ),
-//                          new Padding(padding: const EdgeInsets.symmetric(vertical: 2.5)),
-                              timelineData != null
-                                  ? new Row(
-                                      children: <Widget>[
-                                        new Text("High",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .caption),
-                                        new Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 2.0)),
-                                        new Text("\$" + normalizeNum(high),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.apply(fontSizeFactor: 1.1))
-                                      ],
-                                    )
-                                  : new Container(),
-                              timelineData != null
-                                  ? new Row(
-                                      children: <Widget>[
-                                        new Text("Low",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .caption),
-                                        new Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 3.0)),
-                                        new Text("\$" + normalizeNum(low),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.apply(fontSizeFactor: 1.1))
-                                      ],
-                                    )
-                                  : new Container(),
+//                          Padding(padding: const EdgeInsets.symmetric(vertical: 2.5)),
+                              Row(
+                                  children: <Widget>[
+                                    Text("High",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0)),
+                                    Text("\$" + normalizeNum(high),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.apply(fontSizeFactor: 1.1))
+                                  ],
+                                ),
+                              Row(
+                                  children: <Widget>[
+                                    Text("Low",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 3.0)),
+                                    Text("\$" + normalizeNum(low),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.apply(fontSizeFactor: 1.1))
+                                  ],
+                                ),
                             ],
                           ),
-                          new Card(
+                          Card(
                             elevation: 2.0,
-                            child: new Container(
+                            child: Container(
                               margin: const EdgeInsets.only(
                                   left: 14.0, bottom: 12.0),
-                              child: new Column(
+                              child: Column(
 //                            crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
-                                  new Row(
+                                  Row(
                                     children: <Widget>[
-                                      new Text(periodSetting,
+                                      Text(periodSetting,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium
                                               ?.apply(
                                                   fontWeightDelta: 2,
                                                   fontSizeFactor: 1.2)),
-                                      new Container(
-                                        child: new PopupMenuButton(
-                                          icon: new Icon(Icons.access_time,
+                                      Container(
+                                        child: PopupMenuButton(
+                                          icon: Icon(Icons.access_time,
                                               color: Theme.of(context)
                                                   .buttonColor),
                                           tooltip: "Select Period",
@@ -373,8 +368,8 @@ class PortfolioTabsState extends State<PortfolioTabs>
                                             List<PopupMenuEntry<dynamic>>
                                                 options = [];
                                             periodOptions.forEach((K, V) =>
-                                                options.add(new PopupMenuItem(
-                                                    child: new Text(K),
+                                                options.add(PopupMenuItem(
+                                                    child: Text(K),
                                                     value: K)));
                                             return options;
                                           },
@@ -389,9 +384,9 @@ class PortfolioTabsState extends State<PortfolioTabs>
                                       ),
                                     ],
                                   ),
-                                  new Container(
+                                  Container(
                                     padding: const EdgeInsets.only(right: 14.0),
-                                    child: new Text(
+                                    child: Text(
                                         "${oldestPoint.month.toString()}/${oldestPoint.day.toString()}"
                                         "/${oldestPoint.year.toString().substring(2)} ➞ Now",
                                         style: Theme.of(context)
@@ -404,23 +399,23 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             ),
                           )
                         ])),
-                new Container(
+                Container(
                   padding:
                       const EdgeInsets.only(top: 16.0, left: 4.0, right: 2.0),
                   height: MediaQuery.of(context).size.height * .6,
                   child: timelineData.length > 0
-                      ? new Container(
+                      ? Container(
                           child: timelineData.last != 0.0
-                            ? new Sparkline(
+                            ? Sparkline(
                             data: timelineData,
-                            fillGradient: new LinearGradient(
+                            fillGradient: LinearGradient(
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
                                 colors: [
                                   Theme.of(context).colorScheme.primary,
                                   Colors.purple
                                 ]),
-                            lineGradient: new LinearGradient(
+                            lineGradient: LinearGradient(
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
                                 colors: [
@@ -432,25 +427,25 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             gridLineLabelColor: Theme.of(context).hintColor,
                             gridLineAmount: 4,
                           )
-                      : new Container(
+                      : Container(
                           alignment: Alignment.center,
-                          child: new Text("Transactions too recent or in the future.",
+                          child: Text("Transactions too recent or in the future.",
                               style: Theme.of(context).textTheme.bodySmall))
                         )
-                      : new Container(
+                      : Container(
                           alignment: Alignment.center,
-                          child: new CircularProgressIndicator()),
+                          child: CircularProgressIndicator()),
                 ),
-                new Container(
+                Container(
                   padding:
                       const EdgeInsets.only(top: 16.0, left: 8.0, bottom: 4.0),
-                  child: new Text("All Transactions",
+                  child: Text("All Transactions",
                       style: Theme.of(context).textTheme.bodySmall),
                 )
               ])),
-              new SliverList(
-                  delegate: new SliverChildBuilderDelegate(
-                      (context, index) => new TransactionItem(
+              SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) => TransactionItem(
                             symbol: transactionList[index]["symbol"],
                             currentPrice: transactionList[index]
                                 ["current_price"],
@@ -460,10 +455,10 @@ class PortfolioTabsState extends State<PortfolioTabs>
                       childCount: transactionList.length))
             ]),
           )
-        : new Container(
+        : Container(
             alignment: Alignment.topCenter,
             padding: const EdgeInsets.symmetric(vertical: 40.0),
-            child: new Text("Your portfolio is empty. Add a transaction!",
+            child: Text("Your portfolio is empty. Add a transaction!",
                 style: Theme.of(context).textTheme.bodySmall));
   }
 
@@ -508,7 +503,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
   _makeSegments() {
     segments = [];
     sortedPortfolioDisplay.forEach((coin) {
-      segments.add(new CircularSegmentEntry(
+      segments.add(CircularSegmentEntry(
           coin["total_quantity"] * coin["price_usd"], colorMap[coin["symbol"]],
           rankKey: coin["symbol"]));
     });
@@ -556,27 +551,27 @@ class PortfolioTabsState extends State<PortfolioTabs>
 
   Widget _breakdown(BuildContext context) {
     return portfolioMap.isNotEmpty
-        ? new RefreshIndicator(
+        ? RefreshIndicator(
             onRefresh: _refresh,
-            child: new CustomScrollView(
+            child: CustomScrollView(
               slivers: <Widget>[
-                new SliverList(
-                    delegate: new SliverChildListDelegate(<Widget>[
-                  new Container(
+                SliverList(
+                    delegate: SliverChildListDelegate(<Widget>[
+                  Container(
                     padding: const EdgeInsets.only(
                         left: 10.0, right: 10.0, top: 10.0),
-                    child: new Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            new Text("Portfolio Value",
+                            Text("Portfolio Value",
                                 style: Theme.of(context).textTheme.bodySmall),
-                            new Row(
+                            Row(
                               children: <Widget>[
-                                new Text(
+                                Text(
                                     "\$" +
                                         numCommaParse(value.toStringAsFixed(2)),
                                     style: Theme.of(context)
@@ -587,23 +582,23 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             ),
                           ],
                         ),
-                        new Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            new Text("Total Net",
+                            Text("Total Net",
                                 style: Theme.of(context).textTheme.bodySmall),
-                            new PercentDollarChange(
+                            PercentDollarChange(
                               exact: net,
                               percent: netPercent,
                             )
                           ],
                         ),
-                        new Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: <Widget>[
-                            new Text("Total Cost",
+                            Text("Total Cost",
                                 style: Theme.of(context).textTheme.bodySmall),
-                            new Text(
+                            Text(
                                 "\$" + numCommaParse(cost.toStringAsFixed(2)),
                                 style: Theme.of(context)
                                     .primaryTextTheme
@@ -614,27 +609,27 @@ class PortfolioTabsState extends State<PortfolioTabs>
                       ],
                     ),
                   ),
-                  new AnimatedCircularChart(
+                  AnimatedCircularChart(
                     key: _chartKey,
                     initialChartData: <CircularStackEntry>[
-                      new CircularStackEntry(segments,
+                      CircularStackEntry(segments,
                           rankKey: "Portfolio Breakdown")
                     ],
-                    size: new Size.square(
+                    size: Size.square(
                         MediaQuery.of(context).size.width * 0.75),
-                    duration: new Duration(milliseconds: 500),
+                    duration: Duration(milliseconds: 500),
                   ),
-                  new Container(
+                  Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    decoration: new BoxDecoration(
-                        border: new Border(
-                            bottom: new BorderSide(
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
                                 color: Theme.of(context).dividerColor,
                                 width: 1.0))),
-                    child: new Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        new InkWell(
+                        InkWell(
                           onTap: () {
                             if (portfolioSortType[0] == "symbol") {
                               portfolioSortType[1] = !portfolioSortType[1];
@@ -644,22 +639,22 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             setState(() {
                               _sortPortfolioDisplay();
                               _chartKey.currentState?.updateData([
-                                new CircularStackEntry(segments,
+                                CircularStackEntry(segments,
                                     rankKey: "Portfolio Breakdown")
                               ]);
                             });
                           },
-                          child: new Container(
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             width: MediaQuery.of(context).size.width *
                                 columnProps[0],
                             child: portfolioSortType[0] == "symbol"
-                                ? new Text(
+                                ? Text(
                                     portfolioSortType[1] == true
                                         ? "Currency ⬆"
                                         : "Currency ⬇",
                                     style: Theme.of(context).textTheme.bodyMedium)
-                                : new Text(
+                                : Text(
                                     "Currency",
                                     style: Theme.of(context)
                                         .textTheme
@@ -669,7 +664,7 @@ class PortfolioTabsState extends State<PortfolioTabs>
                                   ),
                           ),
                         ),
-                        new InkWell(
+                        InkWell(
                           onTap: () {
                             if (portfolioSortType[0] == "holdings") {
                               portfolioSortType[1] = !portfolioSortType[1];
@@ -679,23 +674,23 @@ class PortfolioTabsState extends State<PortfolioTabs>
                             setState(() {
                               _sortPortfolioDisplay();
                               _chartKey.currentState?.updateData([
-                                new CircularStackEntry(segments,
+                                CircularStackEntry(segments,
                                     rankKey: "Portfolio Breakdown")
                               ]);
                             });
                           },
-                          child: new Container(
+                          child: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             width: MediaQuery.of(context).size.width *
                                 columnProps[1],
                             child: portfolioSortType[0] == "holdings"
-                                ? new Text(
+                                ? Text(
                                     portfolioSortType[1] == true
                                         ? "Holdings ⬇"
                                         : "Holdings ⬆",
                                     style: Theme.of(context).textTheme.bodyMedium)
-                                : new Text("Holdings",
+                                : Text("Holdings",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -704,11 +699,11 @@ class PortfolioTabsState extends State<PortfolioTabs>
                                                 Theme.of(context).hintColor)),
                           ),
                         ),
-                        new Container(
+                        Container(
                           alignment: Alignment.centerRight,
                           width: MediaQuery.of(context).size.width *
                               columnProps[2],
-                          child: new Text("Percent of Total",
+                          child: Text("Percent of Total",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -718,9 +713,9 @@ class PortfolioTabsState extends State<PortfolioTabs>
                     ),
                   ),
                 ])),
-                new SliverList(
-                    delegate: new SliverChildBuilderDelegate(
-                        (context, index) => new PortfolioBreakdownItem(
+                SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (context, index) => PortfolioBreakdownItem(
                             snapshot: sortedPortfolioDisplay[index],
                             totalValue: totalPortfolioStats["value_usd"],
                             color: colorMap[sortedPortfolioDisplay[index]
@@ -729,10 +724,10 @@ class PortfolioTabsState extends State<PortfolioTabs>
               ],
             ),
           )
-        : new Container(
+        : Container(
             alignment: Alignment.topCenter,
             padding: const EdgeInsets.symmetric(vertical: 40.0),
-            child: new Text("Your portfolio is empty. Add a transaction!",
+            child: Text("Your portfolio is empty. Add a transaction!",
                 style: Theme.of(context).textTheme.bodySmall));
   }
 }
@@ -744,29 +739,33 @@ class PercentDollarChange extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Text.rich(new TextSpan(children: [
-      (percent ?? 0) > 0
-          ? new TextSpan(
-              text: "+${(percent ?? 0).toStringAsFixed(2)}%\n",
+    // Calculate values once to avoid redundant null checks
+    final percentValue = percent ?? 0;
+    final exactValue = exact ?? 0;
+    
+    return Text.rich(TextSpan(children: [
+      percentValue > 0
+          ? TextSpan(
+              text: "+${percentValue.toStringAsFixed(2)}%\n",
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
                   ?.apply(color: Colors.green, fontSizeFactor: 1.1))
-          : new TextSpan(
-              text: "${(percent ?? 0).toStringAsFixed(2)}%\n",
+          : TextSpan(
+              text: "${percentValue.toStringAsFixed(2)}%\n",
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
                   ?.apply(color: Colors.red, fontSizeFactor: 1.1)),
-      (exact ?? 0) > 0
-          ? new TextSpan(
-              text: "(\$${normalizeNum(exact)})",
+      exactValue > 0
+          ? TextSpan(
+              text: "(\$${normalizeNum(exactValue)})",
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge
                   ?.apply(color: Colors.green, fontSizeFactor: 1.0))
-          : new TextSpan(
-              text: "(\$${normalizeNum(exact)})",
+          : TextSpan(
+              text: "(\$${normalizeNum(exactValue)})",
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge

@@ -11,63 +11,63 @@ class CoinListItem extends StatelessWidget {
 
   _getImage() {
     if (assetImages.contains(snapshot["CoinInfo"]["Name"].toLowerCase())) {
-      return new Image.asset(
+      return Image.asset(
           "assets/images/" + snapshot["CoinInfo"]["Name"].toLowerCase() + ".png",
           height: 28.0);
     } else {
-      return new Container();
+      return Container();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!snapshot.containsKey("CoinInfo") || !snapshot.containsKey("RAW") || snapshot == null || snapshot.isEmpty) {
-      return new Container();
+    if (snapshot.isEmpty || !snapshot.containsKey("CoinInfo") || !snapshot.containsKey("RAW")) {
+      return Container();
     }
 
-    return new InkWell(
+    return InkWell(
         onTap: () {
-          Navigator.of(context).push(new MaterialPageRoute(
+          Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  new CoinDetails(snapshot: snapshot)));
+                  CoinDetails(snapshot: snapshot)));
         },
-        child: new Container(
-          decoration: new BoxDecoration(),
+        child: Container(
+          decoration: BoxDecoration(),
           padding: const EdgeInsets.all(8.0),
-          child: new Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              new Container(
+              Container(
                 width: MediaQuery.of(context).size.width * columnProps[0],
-                child: new Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    new Text(snapshot["rank"].toString(),
+                    Text(snapshot["rank"].toString(),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
                             ?.apply(fontWeightDelta: 2)),
-                    new Padding(padding: const EdgeInsets.only(right: 7.0)),
+                    Padding(padding: const EdgeInsets.only(right: 7.0)),
                     _getImage(),
-                    new Padding(padding: const EdgeInsets.only(right: 7.0)),
-                    new Text(snapshot["CoinInfo"]["Name"],
+                    Padding(padding: const EdgeInsets.only(right: 7.0)),
+                    Text(snapshot["CoinInfo"]["Name"],
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
-              new Container(
+              Container(
                   width: MediaQuery.of(context).size.width * columnProps[1],
-                  child: new Column(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      new Text(
+                      Text(
                           "\$" +
                               normalizeNum(
                                   snapshot["RAW"]["USD"]["MKTCAP"]),
                           style: Theme.of(context).textTheme.bodyMedium),
-                      new Padding(padding: const EdgeInsets.only(bottom: 4.0)),
-                      new Text(
+                      Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                      Text(
                           "\$" +
                               normalizeNum(
                                   snapshot["RAW"]["USD"]["TOTALVOLUME24H"]),
@@ -77,17 +77,17 @@ class CoinListItem extends StatelessWidget {
                               ?.apply(color: Theme.of(context).hintColor))
                     ],
                   )),
-              new Container(
+              Container(
                 width: MediaQuery.of(context).size.width * columnProps[2],
-                child: new Column(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    new Text("\$" +
+                    Text("\$" +
                         normalizeNumNoCommas(
                             snapshot["RAW"]["USD"]["PRICE"])),
-                    new Padding(padding: const EdgeInsets.only(bottom: 4.0)),
-                    new Text(
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text(
                         (snapshot["RAW"]["USD"]["CHANGEPCT24HOUR"] ?? 0) >= 0
                             ? "+" + (snapshot["RAW"]["USD"]["CHANGEPCT24HOUR"] ?? 0)
                                     .toStringAsFixed(2) + "%"

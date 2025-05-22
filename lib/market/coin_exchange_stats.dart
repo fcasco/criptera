@@ -19,7 +19,7 @@ class CoinMarketStats extends StatefulWidget {
   final e;
 
   @override
-  CoinMarketStatsState createState() => new CoinMarketStatsState(
+  CoinMarketStatsState createState() => CoinMarketStatsState(
         exchangeData: exchangeData,
         e: e,
       );
@@ -67,7 +67,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
             e)),
         headers: {"Accept": "application/json"});
     setState(() {
-      price = new JsonDecoder().convert(response.body)[toSym].toString();
+      price = JsonDecoder().convert(response.body)[toSym].toString();
     });
   }
 
@@ -87,7 +87,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
             e)),
         headers: {"Accept": "application/json"});
     setState(() {
-      historyOHLCV = new JsonDecoder().convert(response.body)["Data"];
+      historyOHLCV = JsonDecoder().convert(response.body)["Data"];
     });
   }
 
@@ -140,7 +140,8 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
 
   void initState() {
     super.initState();
-    if (historyOHLCV == null) {
+    // Initialize history data if not already loaded
+    if (historyOHLCV == null || (historyOHLCV is List && (historyOHLCV as List).isEmpty)) {
       changeHistory(historyType, historyAmt, historyTotal, historyAgg);
       price = exchangeData["PRICE"].toString();
       getPrice();
@@ -149,38 +150,38 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new PreferredSize(
+    return Scaffold(
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(appBarHeight),
-        child: new AppBar(
+        child: AppBar(
           titleSpacing: 0.0,
           elevation: appBarElevation,
-          title: new Text(
+          title: Text(
               exchangeData["FROMSYMBOL"] + " on " + exchangeData["MARKET"]),
         ),
       ),
       resizeToAvoidBottomInset: false,
-      body: new Container(
-                child: new Column(
+      body: Container(
+                child: Column(
                   children: <Widget>[
-                    new Container(
+                    Container(
                       padding: const EdgeInsets.only(
                           left: 10.0, right: 10.0, top: 10.0, bottom: 4.0),
-                      child: new Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          new Text("\$" + price.toString(),
+                          Text("\$" + price.toString(),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
                                   ?.apply(fontSizeFactor: 2.2)),
-                          new Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              new Text("24h Volume",
+                              Text("24h Volume",
                                   style: Theme.of(context).textTheme.bodySmall),
-                              new Text(
+                              Text(
                                   "\$" + numCommaParse(exchangeData["VOLUME24HOURTO"].toStringAsFixed(0)),
                                   style: Theme.of(context)
                                       .textTheme
@@ -193,26 +194,26 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                         ],
                       ),
                     ),
-                    new Card(
-                      child: new Row(
+                    Card(
+                      child: Row(
                         children: <Widget>[
-                          new Flexible(
-                            child: new Container(
+                          Flexible(
+                            child: Container(
                                 color: Theme.of(context).cardColor,
                                 padding: const EdgeInsets.all(6.0),
-                                child: new Column(
+                                child: Column(
                                   children: <Widget>[
-                                    new Row(
+                                    Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
-                                        new Column(
+                                        Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: <Widget>[
-                                            new Row(
+                                            Row(
                                               children: <Widget>[
-                                                new Text("Period",
+                                                Text("Period",
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .bodyLarge
@@ -220,22 +221,22 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
-                                                new Padding(
+                                                Padding(
                                                     padding:
                                                         const EdgeInsets.only(
                                                             right: 3.0)),
-                                                new Text(historyTotal,
+                                                Text(historyTotal,
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .bodyMedium
                                                         ?.apply(
                                                             fontWeightDelta:
                                                                 2)),
-                                                new Padding(
+                                                Padding(
                                                     padding:
                                                         const EdgeInsets.only(
                                                             right: 4.0)),
-                                                new Text(
+                                                Text(
                                                     num.parse(_change) > 0
                                                         ? "+" + _change + "%"
                                                         : _change + "%",
@@ -251,12 +252,12 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                                 : Colors.red))
                                               ],
                                             ),
-                                            new Padding(
+                                            Padding(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 1.5)),
-                                            new Row(
+                                            Row(
                                               children: <Widget>[
-                                                new Text("Candle Width",
+                                                Text("Candle Width",
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .bodyLarge
@@ -264,11 +265,11 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                             color: Theme.of(
                                                                     context)
                                                                 .hintColor)),
-                                                new Padding(
+                                                Padding(
                                                     padding:
                                                         const EdgeInsets.only(
                                                             right: 3.0)),
-                                                new Text(
+                                                Text(
                                                     ohlcvWidthOptions[
                                                                 historyTotal][
                                                             currentOHLCVWidthSetting]
@@ -282,15 +283,15 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                             ),
                                           ],
                                         ),
-                                        historyOHLCV != null
-                                            ? new Row(
+                                        (historyOHLCV != null && historyOHLCV is List && (historyOHLCV as List).isNotEmpty)
+                                            ? Row(
                                                 children: <Widget>[
-                                                  new Column(
+                                                  Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: <Widget>[
-                                                      new Text("High",
+                                                      Text("High",
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
@@ -299,7 +300,7 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                                   color: Theme.of(
                                                                           context)
                                                                       .hintColor)),
-                                                      new Text("Low",
+                                                      Text("Low",
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
@@ -310,20 +311,20 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                                       .hintColor)),
                                                     ],
                                                   ),
-                                                  new Padding(
+                                                  Padding(
                                                       padding: const EdgeInsets
                                                               .symmetric(
                                                           horizontal: 1.5)),
-                                                  new Column(
+                                                  Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment.end,
                                                     children: <Widget>[
-                                                      new Text("\$" + _high,
+                                                      Text("\$" + _high,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
                                                                   .bodyMedium),
-                                                      new Text("\$" + _low,
+                                                      Text("\$" + _low,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
@@ -332,24 +333,24 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                                   ),
                                                 ],
                                               )
-                                            : new Container()
+                                            : Container()
                                       ],
                                     ),
                                   ],
                                 )),
                           ),
-                          new Container(
-                              child: new PopupMenuButton(
+                          Container(
+                              child: PopupMenuButton(
                             tooltip: "Select Width",
-                            icon: new Icon(Icons.swap_horiz,
+                            icon: Icon(Icons.swap_horiz,
                                 color: Theme.of(context).buttonColor),
                             itemBuilder: (BuildContext context) {
                               List<PopupMenuEntry<dynamic>> options = [];
                               for (int i = 0;
                                   i < ohlcvWidthOptions[historyTotal].length;
                                   i++) {
-                                options.add(new PopupMenuItem(
-                                    child: new Text(
+                                options.add(PopupMenuItem(
+                                    child: Text(
                                         ohlcvWidthOptions[historyTotal][i][0]),
                                     value: i));
                               }
@@ -359,41 +360,41 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                               changeOHLCVWidth(result);
                             },
                           )),
-                          new Container(
-                              child: new PopupMenuButton(
+                          Container(
+                              child: PopupMenuButton(
                             tooltip: "Select Period",
-                            icon: new Icon(Icons.access_time,
+                            icon: Icon(Icons.access_time,
                                 color: Theme.of(context).buttonColor),
                             itemBuilder: (BuildContext context) => [
-                                  new PopupMenuItem(
-                                      child: new Text("1h"),
+                                  PopupMenuItem(
+                                      child: Text("1h"),
                                       value: ["minute", "60", "1h", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("6h"),
+                                  PopupMenuItem(
+                                      child: Text("6h"),
                                       value: ["minute", "360", "6h", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("12h"),
+                                  PopupMenuItem(
+                                      child: Text("12h"),
                                       value: ["minute", "720", "12h", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("24h"),
+                                  PopupMenuItem(
+                                      child: Text("24h"),
                                       value: ["minute", "720", "24h", "2"]),
-                                  new PopupMenuItem(
-                                      child: new Text("3D"),
+                                  PopupMenuItem(
+                                      child: Text("3D"),
                                       value: ["hour", "72", "3D", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("7D"),
+                                  PopupMenuItem(
+                                      child: Text("7D"),
                                       value: ["hour", "168", "7D", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("1M"),
+                                  PopupMenuItem(
+                                      child: Text("1M"),
                                       value: ["hour", "720", "1M", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("3M"),
+                                  PopupMenuItem(
+                                      child: Text("3M"),
                                       value: ["day", "90", "3M", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("6M"),
+                                  PopupMenuItem(
+                                      child: Text("6M"),
                                       value: ["day", "180", "6M", "1"]),
-                                  new PopupMenuItem(
-                                      child: new Text("1Y"),
+                                  PopupMenuItem(
+                                      child: Text("1Y"),
                                       value: ["day", "365", "1Y", "1"]),
                                 ],
                             onSelected: (result) {
@@ -404,12 +405,12 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                         ],
                       ),
                     ),
-                    new Flexible(
-                      child: historyOHLCV != null
-                          ? new Container(
+                    Flexible(
+                      child: (historyOHLCV != null && historyOHLCV is List && (historyOHLCV as List).isNotEmpty)
+                          ? Container(
                               padding: const EdgeInsets.only(
                                   left: 2.0, right: 1.0, top: 10.0),
-                              child: new OHLCVGraph(
+                              child: OHLCVGraph(
                                 data: (historyOHLCV ?? []),
                                 enableGridLines: true,
                                 gridLineColor: Theme.of(context).dividerColor,
@@ -418,9 +419,9 @@ class CoinMarketStatsState extends State<CoinMarketStats> {
                                 volumeProp: 0.2,
                               ),
                             )
-                          : new Container(
-                              child: new Center(
-                                child: new CircularProgressIndicator(),
+                          : Container(
+                              child: Center(
+                                child: CircularProgressIndicator(),
                               ),
                             ),
                     )

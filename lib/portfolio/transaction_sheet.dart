@@ -25,26 +25,26 @@ class TransactionSheet extends StatefulWidget {
   final String symbol;
 
   @override
-  TransactionSheetState createState() => new TransactionSheetState();
+  TransactionSheetState createState() => TransactionSheetState();
 }
 
 class TransactionSheetState extends State<TransactionSheet> {
-  TextEditingController _symbolController = new TextEditingController();
-  TextEditingController _priceController = new TextEditingController();
-  TextEditingController _quantityController = new TextEditingController();
-  TextEditingController _exchangeController = new TextEditingController();
-  TextEditingController _notesController = new TextEditingController();
+  TextEditingController _symbolController = TextEditingController();
+  TextEditingController _priceController = TextEditingController();
+  TextEditingController _quantityController = TextEditingController();
+  TextEditingController _exchangeController = TextEditingController();
+  TextEditingController _notesController = TextEditingController();
 
-  FocusNode _priceFocusNode = new FocusNode();
-  FocusNode _quantityFocusNode = new FocusNode();
-  FocusNode _notesFocusNode = new FocusNode();
+  FocusNode _priceFocusNode = FocusNode();
+  FocusNode _quantityFocusNode = FocusNode();
+  FocusNode _notesFocusNode = FocusNode();
 
   Color errorColor = Colors.red;
   Color validColor = Colors.green;
 
   int radioValue = 0;
-  DateTime pickedDate = new DateTime.now();
-  TimeOfDay pickedTime = new TimeOfDay.now();
+  DateTime pickedDate = DateTime.now();
+  TimeOfDay pickedTime = TimeOfDay.now();
   int epochDate = 0;
 
   List symbolList = [];
@@ -82,37 +82,35 @@ class TransactionSheetState extends State<TransactionSheet> {
   Future<Null> _selectDate() async {
     DateTime? pick = await showDatePicker(
         context: context,
-        initialDate: new DateTime.now(),
-        firstDate: new DateTime(1950),
-        lastDate: new DateTime.now());
-    if (pick != null) {
-      setState(() {
-        pickedDate = pick;
-      });
-      _makeEpoch();
-    }
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1950),
+        lastDate: DateTime.now());
+    // Only update if a date was selected
+    setState(() {
+      pickedDate = pick;
+    });
+    _makeEpoch();
   }
 
   Future<Null> _selectTime() async {
     TimeOfDay? pick = await showTimePicker(
-        context: context, initialTime: new TimeOfDay.now());
-    if (pick != null) {
-      setState(() {
-        pickedTime = pick;
-      });
-      _makeEpoch();
-    }
+        context: context, initialTime: TimeOfDay.now());
+    // Only update if a time was selected
+    setState(() {
+      pickedTime = pick;
+    });
+    _makeEpoch();
   }
 
   _makeEpoch() {
-    epochDate = new DateTime(pickedDate.year, pickedDate.month, pickedDate.day,
+    epochDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day,
             pickedTime.hour, pickedTime.minute)
         .millisecondsSinceEpoch;
   }
 
   _checkValidSymbol(String inputSymbol) async {
-    if (symbolList == null || symbolList.isEmpty) {
-      symbolList = [];
+    // Initialize symbol list if empty
+    if (symbolList.isEmpty) {
       widget.marketListData.forEach((value) => symbolList.add(value["CoinInfo"]["Name"]));
     }
 
@@ -190,14 +188,14 @@ class TransactionSheetState extends State<TransactionSheet> {
   }
 
   _handleSave() async {
-    if (symbol != null &&
-        quantity != null &&
-        exchange != null &&
-        price != null) {
+    if (symbol.isNotEmpty &&
+        quantity > 0 &&
+        exchange.isNotEmpty &&
+        price > 0) {
       print("WRITING TO JSON...");
 
       await getApplicationDocumentsDirectory().then((Directory directory) {
-        File jsonFile = new File(directory.path + "/portfolio.json");
+        File jsonFile = File(directory.path + "/portfolio.json");
         if (jsonFile.existsSync()) {
           if (radioValue == 1) {
             quantity = -quantity;
@@ -211,10 +209,8 @@ class TransactionSheetState extends State<TransactionSheet> {
             "notes": _notesController.text
           };
 
-          Map jsonContent = json.decode(jsonFile.readAsStringSync());
-          if (jsonContent == null) {
-            jsonContent = {};
-          }
+          // Parse JSON content, defaulting to empty map if needed
+          Map jsonContent = json.decode(jsonFile.readAsStringSync()) as Map? ?? {};
 
           try {
             jsonContent[symbol].add(newEntry);
@@ -251,7 +247,7 @@ class TransactionSheetState extends State<TransactionSheet> {
 
   _deleteTransaction() async {
     await getApplicationDocumentsDirectory().then((Directory directory) {
-      File jsonFile = new File(directory.path + "/portfolio.json");
+      File jsonFile = File(directory.path + "/portfolio.json");
       if (jsonFile.existsSync()) {
         Map jsonContent = json.decode(jsonFile.readAsStringSync());
 
@@ -272,13 +268,14 @@ class TransactionSheetState extends State<TransactionSheet> {
         Navigator.of(context).pop();
         jsonFile.writeAsStringSync(json.encode(jsonContent));
 
-        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-          duration: new Duration(seconds: 5),
-          content: new Text("Transaction Deleted."),
-          action: new SnackBarAction(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text("Transaction Deleted."),
+          action: SnackBarAction(
             label: "Undo",
             onPressed: () {
-              if (jsonContent[widget.symbol] != null) {
+              // Add transaction back to the symbol's list
+              if (jsonContent.containsKey(widget.symbol)) {
                 jsonContent[widget.symbol].add(widget.snapshot);
               } else {
                 jsonContent[widget.symbol] = [];
@@ -308,7 +305,7 @@ class TransactionSheetState extends State<TransactionSheet> {
 
     exchangesList = [];
 
-    List exchangeData = new JsonDecoder().convert(response.body)["Data"];
+    List exchangeData = JsonDecoder().convert(response.body)["Data"];
     exchangeData.forEach((value) => exchangesList.add(value["exchange"]));
   }
 
@@ -336,8 +333,8 @@ class TransactionSheetState extends State<TransactionSheet> {
     _notesController.text = widget.snapshot?["notes"];
 
     pickedDate =
-        new DateTime.fromMillisecondsSinceEpoch(widget.snapshot?["time_epoch"]);
-    pickedTime = new TimeOfDay.fromDateTime(pickedDate);
+        DateTime.fromMillisecondsSinceEpoch(widget.snapshot?["time_epoch"]);
+    pickedTime = TimeOfDay.fromDateTime(pickedDate);
   }
 
   @override
@@ -357,47 +354,47 @@ class TransactionSheetState extends State<TransactionSheet> {
   @override
   Widget build(BuildContext context) {
     validColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.green);
-    return new Container(
-        decoration: new BoxDecoration(
-          border: new Border(
-              top: new BorderSide(color: Theme.of(context).colorScheme.primary)),
+    return Container(
+        decoration: BoxDecoration(
+          border: Border(
+              top: BorderSide(color: Theme.of(context).colorScheme.primary)),
           color: Theme.of(context).primaryColor,
         ),
         padding: const EdgeInsets.only(
             top: 8.0, bottom: 8.0, right: 16.0, left: 16.0),
-        child: new Row(
+        child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              new Column(
+              Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-//                    new Container(
+//                    Container(
 //                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-//                      child: new Text(widget.editMode ? "Edit Transaction" : "Add Transaction", style: Theme.of(context).textTheme.bodyMedium.apply(fontSizeFactor: 1.2, fontWeightDelta: 2))
+//                      child: Text(widget.editMode ? "Edit Transaction" : "Add Transaction", style: Theme.of(context).textTheme.bodyMedium.apply(fontSizeFactor: 1.2, fontWeightDelta: 2))
 //                    ),
-                    new Row(
+                    Row(
                       children: <Widget>[
-                        new Text("Buy",
+                        Text("Buy",
                             style: Theme.of(context).textTheme.bodySmall),
-                        new Radio(
+                        Radio(
                             value: 0,
                             groupValue: radioValue,
                             onChanged: (x) => _handleRadioValueChange((x ?? 0)),
                             activeColor: Theme.of(context).colorScheme.secondary),
-                        new Text("Sell",
+                        Text("Sell",
                             style: Theme.of(context).textTheme.bodySmall),
-                        new Radio(
+                        Radio(
                             value: 1,
                             groupValue: radioValue,
                             onChanged: (x) => _handleRadioValueChange((x ?? 0)),
                             activeColor: Theme.of(context).colorScheme.secondary),
-                        new Padding(
+                        Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 6.0)),
-                        new GestureDetector(
+                        GestureDetector(
                           onTap: () => _selectDate(),
-                          child: new Text(
+                          child: Text(
                               pickedDate.month.toString() +
                                   "/" +
                                   pickedDate.day.toString() +
@@ -405,12 +402,12 @@ class TransactionSheetState extends State<TransactionSheet> {
                                   pickedDate.year.toString().substring(2),
                               style: Theme.of(context).textTheme.labelLarge),
                         ),
-                        new Padding(
+                        Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 4.0)),
-                        new GestureDetector(
+                        GestureDetector(
                           onTap: () => _selectTime(),
-                          child: new Text(
+                          child: Text(
                             (pickedTime.hourOfPeriod == 0
                                     ? "12"
                                     : pickedTime.hourOfPeriod.toString()) +
@@ -422,18 +419,18 @@ class TransactionSheetState extends State<TransactionSheet> {
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
-                        new Padding(
+                        Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 6.0)),
                       ],
                     ),
-                    new Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width * 0.25,
                           padding: const EdgeInsets.only(right: 4.0),
-                          child: new TextField(
+                          child: TextField(
                             controller: _symbolController,
                             autofocus: true,
                             autocorrect: false,
@@ -445,16 +442,16 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .textTheme
                                 .bodyMedium
                                 ?.apply(color: symbolTextColor),
-                            decoration: new InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Symbol",
                             ),
                           ),
                         ),
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width * 0.2,
                           padding: const EdgeInsets.only(right: 4.0),
-                          child: new TextField(
+                          child: TextField(
                             focusNode: _quantityFocusNode,
                             controller: _quantityController,
                             autocorrect: false,
@@ -466,16 +463,16 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .bodyMedium
                                 ?.apply(color: quantityTextColor),
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
-                            decoration: new InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Quantity",
                             ),
                           ),
                         ),
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width * 0.3,
                           padding: const EdgeInsets.only(right: 4.0),
-                          child: new TextField(
+                          child: TextField(
                             focusNode: _priceFocusNode,
                             controller: _priceController,
                             autocorrect: false,
@@ -487,7 +484,7 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .bodyMedium
                                 ?.apply(color: priceTextColor),
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
-                            decoration: new InputDecoration(
+                            decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Price",
                                 prefixText: "\$",
@@ -499,24 +496,23 @@ class TransactionSheetState extends State<TransactionSheet> {
                         )
                       ],
                     ),
-                    new Row(
+                    Row(
                       children: <Widget>[
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width * 0.25,
-                          child: new PopupMenuButton(
+                          child: PopupMenuButton(
                             itemBuilder: (BuildContext context) {
                               List<PopupMenuEntry<dynamic>> options = [
-                                new PopupMenuItem(
-                                  child: new Text("Aggregated"),
+                                PopupMenuItem(
+                                  child: Text("Aggregated"),
                                   value: "CCCAGG",
                                 ),
                               ];
-                              if (exchangesList != null &&
-                                  exchangesList.isEmpty != true) {
-                                options.add(new PopupMenuDivider());
+                              if (exchangesList.isNotEmpty) {
+                                options.add(PopupMenuDivider());
                                 exchangesList.forEach(
-                                    (exchange) => options.add(new PopupMenuItem(
-                                          child: new Text(exchange),
+                                    (exchange) => options.add(PopupMenuItem(
+                                          child: Text(exchange),
                                           value: exchange,
                                         )));
                               }
@@ -534,7 +530,7 @@ class TransactionSheetState extends State<TransactionSheet> {
                                     .requestFocus(_notesFocusNode);
                               });
                             },
-                            child: new Text(
+                            child: Text(
                               _exchangeController.text == ""
                                   ? "Exchange"
                                   : _exchangeController.text,
@@ -545,9 +541,9 @@ class TransactionSheetState extends State<TransactionSheet> {
                             ),
                           ),
                         ),
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width * 0.50,
-                          child: new TextField(
+                          child: TextField(
                             focusNode: _notesFocusNode,
                             controller: _notesController,
                             autocorrect: true,
@@ -557,20 +553,20 @@ class TransactionSheetState extends State<TransactionSheet> {
                                 .bodyMedium
                                 ?.apply(color: validColor),
                             keyboardType: TextInputType.text,
-                            decoration: new InputDecoration(
+                            decoration: InputDecoration(
                                 border: InputBorder.none, hintText: "Notes"),
                           ),
                         ),
                       ],
                     )
                   ]),
-              new Column(
+              Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   widget.editMode
-                      ? new Container(
+                      ? Container(
                           padding: const EdgeInsets.only(bottom: 16.0),
-                          child: new FloatingActionButton(
+                          child: FloatingActionButton(
                               child: Icon(Icons.delete),
                               backgroundColor: Colors.red,
                               foregroundColor:
@@ -578,20 +574,20 @@ class TransactionSheetState extends State<TransactionSheet> {
                               elevation: 2.0,
                               onPressed: _deleteTransaction),
                         )
-                      : new Container(),
-                  new Container(
-                    child: new FloatingActionButton(
+                      : Container(),
+                  Container(
+                    child: FloatingActionButton(
                         child: Icon(Icons.check),
-                        elevation: symbol != null &&
-                                quantity != null &&
-                                exchange != null &&
-                                price != null
+                        elevation: symbol.isNotEmpty &&
+                                quantity > 0 &&
+                                exchange.isNotEmpty &&
+                                price > 0
                             ? 4.0
                             : 0.0,
-                        backgroundColor: symbol != null &&
-                                quantity != null &&
-                                exchange != null &&
-                                price != null
+                        backgroundColor: symbol.isNotEmpty &&
+                                quantity > 0 &&
+                                exchange.isNotEmpty &&
+                                price > 0
                             ? Colors.green
                             : Theme.of(context).disabledColor,
                         foregroundColor: Theme.of(context).iconTheme.color,

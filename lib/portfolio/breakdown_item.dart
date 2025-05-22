@@ -13,47 +13,47 @@ class PortfolioBreakdownItem extends StatelessWidget {
 
   _getImage() {
     if (assetImages.contains(snapshot["symbol"].toLowerCase())) {
-      return new Image.asset(
+      return Image.asset(
           "assets/images/" + snapshot["symbol"].toLowerCase() + ".png",
           height: 24.0);
     } else {
-      return new Container();
+      return Container();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return new InkWell(
+    return InkWell(
       onTap: () {
-        Navigator.of(context).push(new MaterialPageRoute(
+        Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) =>
-                new CoinDetails(snapshot: snapshot, enableTransactions: true)));
+                CoinDetails(snapshot: snapshot, enableTransactions: true)));
       },
-      child: new Container(
-        decoration: new BoxDecoration(),
+      child: Container(
+        decoration: BoxDecoration(),
         padding: const EdgeInsets.all(8.0),
-        child: new Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            new Container(
+            Container(
               width: MediaQuery.of(context).size.width * columnProps[0],
-              child: new Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   _getImage(),
-                  new Padding(padding: const EdgeInsets.only(right: 8.0)),
-                  new Text(snapshot["symbol"],
+                  Padding(padding: const EdgeInsets.only(right: 8.0)),
+                  Text(snapshot["symbol"],
                       style: Theme.of(context).textTheme.bodyMedium),
                 ],
               ),
             ),
-            new Container(
+            Container(
               width: MediaQuery.of(context).size.width * columnProps[2],
-              child: new Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  new Text(
+                  Text(
                       "\$" +
                           numCommaParse((snapshot["total_quantity"] *
                                   snapshot["price_usd"])
@@ -65,13 +65,13 @@ class PortfolioBreakdownItem extends StatelessWidget {
                 ],
               ),
             ),
-            new Container(
+            Container(
                 width: MediaQuery.of(context).size.width * columnProps[1],
-                child: new Column(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    new Text(
+                    Text(
                         ((snapshot["total_quantity"] * snapshot["price_usd"])
                                         .abs() /
                                     totalValue.abs() *
