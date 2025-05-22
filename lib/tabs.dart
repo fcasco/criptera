@@ -28,12 +28,12 @@ class Tabs extends StatefulWidget {
   final bool darkOLED;
 
   @override
-  TabsState createState() => new TabsState();
+  TabsState createState() => TabsState();
 }
 
 class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  TextEditingController _textController = new TextEditingController();
+  TextEditingController _textController = TextEditingController();
   int _tabIndex = 0;
 
   bool isSearching = false;
@@ -42,7 +42,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   bool sheetOpen = false;
 
   _handleFilter(value) {
-    if (value == null) {
+    if (value.isEmpty) {
       isSearching = false;
       filter = "";
     } else {
@@ -83,7 +83,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     });
     _scaffoldKey.currentState
         ?.showBottomSheet((BuildContext context) {
-          return new TransactionSheet(
+          return TransactionSheet(
             key: Key("fixme"),
             () {
               setState(() {
@@ -156,7 +156,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.animation?.addListener(() {
       if (_tabController.animation?.value.round() != _tabIndex) {
         _handleTabChange();
@@ -176,71 +176,71 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  ScrollController _scrollController = new ScrollController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  ScrollController _scrollController = ScrollController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
-        drawer: new Drawer(
-            child: new Scaffold(
-                bottomNavigationBar: new Container(
-                    decoration: new BoxDecoration(
-                        border: new Border(
-                      top: new BorderSide(
+        drawer: Drawer(
+            child: Scaffold(
+                bottomNavigationBar: Container(
+                    decoration: BoxDecoration(
+                        border: Border(
+                      top: BorderSide(
                           color: Theme.of(context).colorScheme.primary),
                     )),
-                    child: new ListTile(
+                    child: ListTile(
                       onTap: () => widget.toggleTheme(),
-                      leading: new Icon(
+                      leading: Icon(
                           widget.darkEnabled
                               ? Icons.brightness_3
                               : Icons.brightness_7,
                           color: Theme.of(context).colorScheme.primary),
-                      title: new Text(widget.themeMode,
+                      title: Text(widget.themeMode,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
                               ?.apply(color: Theme.of(context).colorScheme.primary)),
                     )),
-                body: new ListView(
+                body: ListView(
                   children: <Widget>[
-                    new ListTile(
-                      leading: new Icon(Icons.timeline),
-                      title: new Text("Portfolio Timeline"),
+                    ListTile(
+                      leading: Icon(Icons.timeline),
+                      title: Text("Portfolio Timeline"),
                       onTap: () => Navigator.push(
                           context,
-                          new MaterialPageRoute(
+                          MaterialPageRoute(
                               builder: (context) =>
-                                  new PortfolioTabs(0, _makePortfolioDisplay))),
+                                  PortfolioTabs(0, _makePortfolioDisplay))),
                     ),
-                    new ListTile(
-                      leading: new Icon(Icons.pie_chart_outline_outlined),
-                      title: new Text("Portfolio Breakdown"),
+                    ListTile(
+                      leading: Icon(Icons.pie_chart_outline_outlined),
+                      title: Text("Portfolio Breakdown"),
                       onTap: () => Navigator.push(
                           context,
-                          new MaterialPageRoute(
+                          MaterialPageRoute(
                               builder: (context) =>
-                                  new PortfolioTabs(1, _makePortfolioDisplay))),
+                                  PortfolioTabs(1, _makePortfolioDisplay))),
                     ),
-                    new ListTile(
-                      leading: new Icon(Icons.settings),
-                      title: new Text("Settings"),
+                    ListTile(
+                      leading: Icon(Icons.settings),
+                      title: Text("Settings"),
                       onTap: () => Navigator.pushNamed(context, "/settings"),
                     ),
                   ],
                 ))),
         floatingActionButton: _tabIndex == 0 ? _transactionFAB(context) : null,
-        body: new NestedScrollView(
+        body: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
-              new SliverAppBar(
+              SliverAppBar(
                 title: [
-                  new Text("Portfolio"),
+                  Text("Portfolio"),
                   isSearching
-                      ? new TextField(
+                      ? TextField(
                           controller: _textController,
                           autocorrect: false,
                           keyboardType: TextInputType.text,
@@ -248,27 +248,27 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           onChanged: (value) => _handleFilter(value),
                           autofocus: true,
                           textCapitalization: TextCapitalization.none,
-                          decoration: new InputDecoration.collapsed(
+                          decoration: InputDecoration.collapsed(
                               hintText: 'Search names and symbols...'),
                         )
-                      : new GestureDetector(
+                      : GestureDetector(
                           onTap: () => _startSearch(),
-                          child: new Text("Aggregate Markets"),
+                          child: Text("Aggregate Markets"),
                         ),
                 ][_tabIndex],
                 actions: <Widget>[
                   [
-                    new Container(),
+                    Container(),
                     isSearching
-                        ? new IconButton(
-                            icon: new Icon(Icons.close),
+                        ? IconButton(
+                            icon: Icon(Icons.close),
                             onPressed: () => _stopSearch())
-                        : new IconButton(
-                            icon: new Icon(Icons.search,
+                        : IconButton(
+                            icon: Icon(Icons.search,
                                 color:
                                     Theme.of(context).primaryIconTheme.color),
                             onPressed: () => _startSearch()),
-                    new Container()
+                    Container()
                   ][_tabIndex],
                 ],
                 pinned: true,
@@ -276,25 +276,25 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                 titleSpacing: 3.0,
                 elevation: appBarElevation,
                 forceElevated: innerBoxIsScrolled,
-                bottom: new PreferredSize(
+                bottom: PreferredSize(
                     preferredSize: const Size.fromHeight(38.0),
-                    child: new Container(
+                    child: Container(
                       height: 38.0,
-                      child: new TabBar(
+                      child: TabBar(
                         controller: _tabController,
                         indicatorColor: Theme.of(context).colorScheme.secondary,
                         unselectedLabelColor: Theme.of(context).colorScheme.secondary,
                         labelColor: Theme.of(context).colorScheme.primary,
                         tabs: <Tab>[
-                          new Tab(icon: new Icon(Icons.person)),
-                          new Tab(icon: new Icon(Icons.filter_list)),
+                          Tab(icon: Icon(Icons.person)),
+                          Tab(icon: Icon(Icons.filter_list)),
                         ],
                       ),
                     )),
               )
             ];
           },
-          body: new TabBarView(
+          body: TabBarView(
             controller: _tabController,
             children: [portfolioPage(context), marketPage(context)],
           ),
@@ -303,7 +303,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
 
   Widget _transactionFAB(BuildContext context) {
     return sheetOpen
-        ? new FloatingActionButton(
+        ? FloatingActionButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Icon(Icons.close),
             foregroundColor: Theme.of(context).iconTheme.color,
@@ -311,10 +311,10 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
             elevation: 4.0,
             tooltip: "Close Transaction",
           )
-        : new FloatingActionButton.extended(
+        : FloatingActionButton.extended(
               onPressed: _openTransaction,
               icon: Icon(Icons.add),
-              label: new Text("Add Transaction"),
+              label: Text("Add Transaction"),
               foregroundColor: Theme.of(context).iconTheme.color,
               backgroundColor: Theme.of(context).colorScheme.secondary,
               elevation: 4.0,
@@ -359,30 +359,30 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     }
   }
 
-  final PageStorageKey _marketKey = new PageStorageKey("market");
-  final PageStorageKey _portfolioKey = new PageStorageKey("portfolio");
+  final PageStorageKey _marketKey = PageStorageKey("market");
+  final PageStorageKey _portfolioKey = PageStorageKey("portfolio");
 
   Widget portfolioPage(BuildContext context) {
-    return new RefreshIndicator(
+    return RefreshIndicator(
         key: _portfolioKey,
         onRefresh: _refreshPortfolioPage,
-        child: new CustomScrollView(
+        child: CustomScrollView(
           slivers: <Widget>[
-            new SliverList(
-                delegate: new SliverChildListDelegate(<Widget>[
-              new Container(
+            SliverList(
+                delegate: SliverChildListDelegate(<Widget>[
+              Container(
                 padding: const EdgeInsets.only(
                     left: 10.0, right: 10.0, top: 10.0, bottom: 4.0),
-                child: new Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    new Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Text("Total Portfolio Value",
+                        Text("Total Portfolio Value",
                             style: Theme.of(context).textTheme.bodySmall),
-                        new Text(
+                        Text(
                             "\$" +
                                 numCommaParse(totalPortfolioStats["value_usd"]
                                     .toStringAsFixed(2)),
@@ -392,13 +392,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                 ?.apply(fontSizeFactor: 2.2)),
                       ],
                     ),
-                    new Column(
+                    Column(
                       children: <Widget>[
-                        new Text("1h Change",
+                        Text("1h Change",
                             style: Theme.of(context).textTheme.bodySmall),
-                        new Padding(
+                        Padding(
                             padding: const EdgeInsets.symmetric(vertical: 1.0)),
-                        new Text(
+                        Text(
                             totalPortfolioStats["percent_change_1h"] >= 0
                                 ? "+" +
                                     totalPortfolioStats["percent_change_1h"]
@@ -418,14 +418,14 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                     ))
                       ],
                     ),
-                    new Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
-                        new Text("24h Change",
+                        Text("24h Change",
                             style: Theme.of(context).textTheme.bodySmall),
-                        new Padding(
+                        Padding(
                             padding: const EdgeInsets.symmetric(vertical: 1.0)),
-                        new Text(
+                        Text(
                             totalPortfolioStats["percent_change_24h"] >= 0
                                 ? "+" +
                                     totalPortfolioStats["percent_change_24h"]
@@ -449,17 +449,17 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                   ],
                 ),
               ),
-              new Container(
+              Container(
                 margin: const EdgeInsets.only(left: 6.0, right: 6.0),
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        bottom: new BorderSide(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
                             color: Theme.of(context).dividerColor,
                             width: 1.0))),
-                child: new Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    new InkWell(
+                    InkWell(
                       onTap: () {
                         if (portfolioSortType[0] == "symbol") {
                           portfolioSortType[1] = !portfolioSortType[1];
@@ -470,17 +470,17 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           _sortPortfolioDisplay();
                         });
                       },
-                      child: new Container(
+                      child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         width:
                             MediaQuery.of(context).size.width * portfolioColumnProps[0],
                         child: portfolioSortType[0] == "symbol"
-                            ? new Text(
+                            ? Text(
                                 portfolioSortType[1] == true
                                     ? "Currency " + upArrow
                                     : "Currency " + downArrow,
                                 style: Theme.of(context).textTheme.bodyMedium)
-                            : new Text(
+                            : Text(
                                 "Currency",
                                 style: Theme.of(context)
                                     .textTheme
@@ -489,7 +489,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                               ),
                       ),
                     ),
-                    new InkWell(
+                    InkWell(
                       onTap: () {
                         if (portfolioSortType[0] == "holdings") {
                           portfolioSortType[1] = !portfolioSortType[1];
@@ -500,25 +500,25 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           _sortPortfolioDisplay();
                         });
                       },
-                      child: new Container(
+                      child: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         width:
                             MediaQuery.of(context).size.width * portfolioColumnProps[1],
                         child: portfolioSortType[0] == "holdings"
-                            ? new Text(
+                            ? Text(
                                 portfolioSortType[1] == true
                                     ? "Holdings " + downArrow
                                     : "Holdings " + upArrow,
                                 style: Theme.of(context).textTheme.bodyMedium)
-                            : new Text("Holdings",
+                            : Text("Holdings",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
                                     ?.apply(color: Theme.of(context).hintColor)),
                       ),
                     ),
-                    new InkWell(
+                    InkWell(
                       onTap: () {
                         if (portfolioSortType[0] == "percent_change_24h") {
                           portfolioSortType[1] = !portfolioSortType[1];
@@ -529,18 +529,18 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                           _sortPortfolioDisplay();
                         });
                       },
-                      child: new Container(
+                      child: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         width:
                             MediaQuery.of(context).size.width * portfolioColumnProps[2],
                         child: portfolioSortType[0] == "percent_change_24h"
-                            ? new Text(
+                            ? Text(
                                 portfolioSortType[1] == true
                                     ? "Price/24h " + downArrow
                                     : "Price/24h " + upArrow,
                                 style: Theme.of(context).textTheme.bodyMedium)
-                            : new Text("Price/24h",
+                            : Text("Price/24h",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -552,27 +552,27 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
               ),
             ])),
             portfolioMap.isNotEmpty
-                ? new SliverList(
-                    delegate: new SliverChildBuilderDelegate(
-                        (context, index) => new PortfolioListItem(
+                ? SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (context, index) => PortfolioListItem(
                             sortedPortfolioDisplay[index], portfolioColumnProps),
                         childCount: sortedPortfolioDisplay.length))
-                : new SliverFillRemaining(
-                    child: new Container(
+                : SliverFillRemaining(
+                    child: Container(
                         alignment: Alignment.topCenter,
                         padding: const EdgeInsets.symmetric(vertical: 40.0),
-                        child: new Column(
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            new Text(
+                            Text(
                                 "Your portfolio is empty. Add a transaction!",
                                 style: Theme.of(context).textTheme.bodySmall),
-                            new Padding(
+                            Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8.0)),
-                            new ElevatedButton(
+                            ElevatedButton(
                               onPressed: _openTransaction,
-                              child: new Text("New Transaction",
+                              child: Text("New Transaction",
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -596,7 +596,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     //     Uri.encodeFull("https://api.coinmarketcap.com/v1/global-metrics/quotes/latest"),
     //     headers: {"Accept": "application/json"});
 
-    // globalData = new JsonDecoder().convert(response.body)["data"]["quotes"]["USD"];
+    // globalData = JsonDecoder().convert(response.body)["data"]["quotes"]["USD"];
     globalData = {};
   }
 
@@ -611,7 +611,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   _filterMarketData() {
     print("filtering market data");
     filteredMarketData = marketListData;
-    if (filter != "" && filter != null) {
+    if (filter != "") {
       List tempFilteredMarketData = [];
       filteredMarketData.forEach((item) {
         if (item["CoinInfo"]["Name"].toLowerCase().contains(filter.toLowerCase()) ||
@@ -626,7 +626,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
 
   List marketSortType = ["MKTCAP", true];
   _sortMarketData() {
-    if (filteredMarketData == [] || filteredMarketData == null) {
+    if (filteredMarketData.isEmpty) {
       return;
     }
     // highest to lowest
@@ -665,35 +665,34 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   }
 
   Widget marketPage(BuildContext context) {
-    return filteredMarketData != null
-        ? new RefreshIndicator(
+    return RefreshIndicator(
             key: _marketKey,
             onRefresh: () => _refreshMarketPage(),
-            child: new CustomScrollView(
+            child: CustomScrollView(
               slivers: <Widget>[
-                new SliverList(
-                    delegate: new SliverChildListDelegate(<Widget>[
-                  globalData != null && isSearching != true
-                      ? new Container(
+                SliverList(
+                    delegate: SliverChildListDelegate(<Widget>[
+                  !isSearching
+                      ? Container(
                           padding: const EdgeInsets.all(10.0),
-                          child: new Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              new Column(
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  new Text("Total Market Cap",
+                                  Text("Total Market Cap",
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
                                           ?.apply(
                                               color:
                                                   Theme.of(context).hintColor)),
-                                  new Padding(
+                                  Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 1.0)),
-                                  new Text("Total 24h Volume",
+                                  Text("Total 24h Volume",
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
@@ -702,13 +701,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                                   Theme.of(context).hintColor)),
                                 ],
                               ),
-                              new Padding(
+                              Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 1.0)),
-                              new Column(
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
-                                  new Text(
+                                  Text(
                                       "\$" +
                                           normalizeNum(
                                               (globalData["total_market_cap"] ?? 0)),
@@ -718,7 +717,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                           ?.apply(
                                               fontSizeFactor: 1.2,
                                               fontWeightDelta: 2)),
-                                  new Text(
+                                  Text(
                                       "\$" +
                                           normalizeNum(
                                               (globalData["total_volume_24h"] ?? 0)),
@@ -732,18 +731,18 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                               )
                             ],
                           ))
-                      : new Container(),
-                  new Container(
+                      : Container(),
+                  Container(
                     margin: const EdgeInsets.only(left: 6.0, right: 6.0),
-                    decoration: new BoxDecoration(
-                        border: new Border(
-                            bottom: new BorderSide(
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
                                 color: Theme.of(context).dividerColor,
                                 width: 1.0))),
-                    child: new Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        new InkWell(
+                        InkWell(
                           onTap: () {
                             if (marketSortType[0] == "Name") {
                               marketSortType[1] = !marketSortType[1];
@@ -754,17 +753,17 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                               _sortMarketData();
                             });
                           },
-                          child: new Container(
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             width: MediaQuery.of(context).size.width *
                                 marketColumnProps[0],
                             child: marketSortType[0] == "Name"
-                                ? new Text(
+                                ? Text(
                                     marketSortType[1]
                                         ? "Currency " + upArrow
                                         : "Currency " + downArrow,
                                     style: Theme.of(context).textTheme.bodyMedium)
-                                : new Text("Currency",
+                                : Text("Currency",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -773,13 +772,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                                 Theme.of(context).hintColor)),
                           ),
                         ),
-                        new Container(
+                        Container(
                           width: MediaQuery.of(context).size.width *
                               marketColumnProps[1],
-                          child: new Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
-                              new InkWell(
+                              InkWell(
                                   onTap: () {
                                     if (marketSortType[0] == "MKTCAP") {
                                       marketSortType[1] = !marketSortType[1];
@@ -790,18 +789,18 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                       _sortMarketData();
                                     });
                                   },
-                                  child: new Padding(
+                                  child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
                                     child: marketSortType[0] == "MKTCAP"
-                                        ? new Text(
+                                        ? Text(
                                             marketSortType[1]
                                                 ? "Market Cap " + downArrow
                                                 : "Market Cap " + upArrow,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium)
-                                        : new Text("Market Cap",
+                                        : Text("Market Cap",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium
@@ -809,13 +808,13 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                                     color: Theme.of(context)
                                                         .hintColor)),
                                   )),
-                              new Text("/",
+                              Text("/",
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
                                       ?.apply(
                                           color: Theme.of(context).hintColor)),
-                              new InkWell(
+                              InkWell(
                                 onTap: () {
                                   if (marketSortType[0] == "TOTALVOLUME24H") {
                                     marketSortType[1] = !marketSortType[1];
@@ -826,15 +825,15 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                                     _sortMarketData();
                                   });
                                 },
-                                child: new Padding(
+                                child: Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 8.0),
                                   child: marketSortType[0] == "TOTALVOLUME24H"
-                                      ? new Text(
+                                      ? Text(
                                           marketSortType[1] ? "24h " + downArrow : "24h " + upArrow,
                                           style:
                                               Theme.of(context).textTheme.bodyMedium)
-                                      : new Text("24h",
+                                      : Text("24h",
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium
@@ -846,7 +845,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                             ],
                           ),
                         ),
-                        new InkWell(
+                        InkWell(
                           onTap: () {
                             if (marketSortType[0] == "CHANGEPCT24HOUR") {
                               marketSortType[1] = !marketSortType[1];
@@ -857,18 +856,18 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                               _sortMarketData();
                             });
                           },
-                          child: new Container(
+                          child: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             width: MediaQuery.of(context).size.width *
                                 marketColumnProps[2],
                             child: marketSortType[0] == "CHANGEPCT24HOUR"
-                                ? new Text(
+                                ? Text(
                                     marketSortType[1] == true
                                         ? "Price/24h " + downArrow
                                         : "Price/24h " + upArrow,
                                     style: Theme.of(context).textTheme.bodyMedium)
-                                : new Text("Price/24h",
+                                : Text("Price/24h",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -882,27 +881,25 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
                   ),
                 ])),
                 filteredMarketData.isEmpty
-                    ? new SliverList(
-                        delegate: new SliverChildListDelegate(<Widget>[
-                        new Container(
+                    ? SliverList(
+                        delegate: SliverChildListDelegate(<Widget>[
+                        Container(
                           padding: const EdgeInsets.all(30.0),
                           alignment: Alignment.topCenter,
-                          child: new Text("No results found",
+                          child: Text("No results found",
                               style: Theme.of(context).textTheme.bodySmall),
                         )
                       ]))
-                    : new SliverList(
-                        delegate: new SliverChildBuilderDelegate(
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) =>
-                                new CoinListItem(filteredMarketData[index],
+                                CoinListItem(filteredMarketData[index],
                                     marketColumnProps),
-                            childCount: filteredMarketData == null
-                                ? 0
-                                : filteredMarketData.length))
+                            childCount: filteredMarketData.length))
               ],
             ))
-        : new Container(
-            child: new Center(child: new CircularProgressIndicator()),
+        : Container(
+            child: Center(child: CircularProgressIndicator()),
           );
   }
 }

@@ -16,9 +16,9 @@ const double appBarElevation = 1.0;
 
 bool shortenOn = false;
 
-List<dynamic> marketListData = [];
+List<Map<String, dynamic>> marketListData = [];
 Map<String, dynamic> portfolioMap = {};
-List<dynamic> portfolioDisplay = [];
+List<Map<String, dynamic>> portfolioDisplay = [];
 Map<String, dynamic> totalPortfolioStats = {};
 
 bool isIOS = false;
@@ -28,7 +28,7 @@ String downArrow = "⬇";
 int lastUpdate = 0;
 Future<void> getMarketData() async {
   int pages = 5;
-  List<dynamic> tempMarketListData = [];
+  List<Map<String, dynamic>> tempMarketListData = [];
 
   Future<void> _pullData(int page) async {
     var response = await http.get(
@@ -38,7 +38,7 @@ Future<void> getMarketData() async {
             page.toString()),
         headers: {"Accept": "application/json"});
 
-    List<dynamic> rawMarketListData = json.decode(response.body)["Data"] as List<dynamic>;
+    List<Map<String, dynamic>> rawMarketListData = (json.decode(response.body)["Data"] as List).cast<Map<String, dynamic>>();
     tempMarketListData.addAll(rawMarketListData);
   }
 
@@ -50,7 +50,7 @@ Future<void> getMarketData() async {
 
   marketListData = [];
   // Filter out lack of financial data
-  for (Map<String, dynamic> coin in tempMarketListData.cast<Map<String, dynamic>>()) {
+  for (Map<String, dynamic> coin in tempMarketListData) {
     if (coin.containsKey("RAW") && coin.containsKey("CoinInfo")) {
       marketListData.add(coin);
     }
@@ -59,7 +59,7 @@ Future<void> getMarketData() async {
   final Directory directory = await getApplicationDocumentsDirectory();
   File jsonFile = File(directory.path + "/marketData.json");
   jsonFile.writeAsStringSync(json.encode(marketListData));
-  print("Got new market data.");
+  print("Got market data.");
 
   lastUpdate = DateTime.now().millisecondsSinceEpoch;
 }
@@ -78,7 +78,7 @@ void main() async {
   }
   jsonFile = File(directory.path + "/marketData.json");
   if (jsonFile.existsSync()) {
-    marketListData = json.decode(jsonFile.readAsStringSync()) as List<dynamic>;
+    marketListData = (json.decode(jsonFile.readAsStringSync()) as List).cast<Map<String, dynamic>>();
   } else {
     jsonFile.createSync();
     jsonFile.writeAsStringSync("[]");
@@ -89,12 +89,10 @@ void main() async {
   String themeMode = "Automatic";
   bool darkOLED = false;
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (prefs.getBool("shortenOn") != null &&
-      prefs.getString("themeMode") != null) {
-    shortenOn = prefs.getBool("shortenOn") ?? false;
-    themeMode = prefs.getString("themeMode") ?? "default";
-    darkOLED = prefs.getBool("darkOLED") ?? false;
-  }
+  // Load preferences with fallback values
+  shortenOn = prefs.getBool("shortenOn") ?? false;
+  themeMode = prefs.getString("themeMode") ?? "Automatic";
+  darkOLED = prefs.getBool("darkOLED") ?? false;
 
   runApp(CripteraApp(themeMode, darkOLED));
 }
@@ -227,7 +225,7 @@ class CripteraAppState extends State<CripteraApp> {
     }
   }
 
-  final ThemeData lightTheme = new ThemeData(
+  final ThemeData lightTheme = ThemeData(
     primarySwatch: Colors.purple,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
@@ -243,8 +241,8 @@ class CripteraAppState extends State<CripteraApp> {
         foregroundColor: Colors.purple[700],
       ),
     ),
-    iconTheme: new IconThemeData(color: Colors.white),
-    primaryIconTheme: new IconThemeData(color: Colors.black),
+    iconTheme: IconThemeData(color: Colors.white),
+    primaryIconTheme: IconThemeData(color: Colors.black),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
         foregroundColor: Colors.purple[700],
@@ -253,7 +251,7 @@ class CripteraAppState extends State<CripteraApp> {
     disabledColor: Colors.grey[500],
   );
 
-  final ThemeData darkTheme = new ThemeData(
+  final ThemeData darkTheme = ThemeData(
     primarySwatch: Colors.purple,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.dark(
@@ -267,7 +265,7 @@ class CripteraAppState extends State<CripteraApp> {
         foregroundColor: Colors.deepPurpleAccent[100],
       ),
     ),
-    iconTheme: new IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: Colors.white),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
         foregroundColor: Colors.deepPurpleAccent[100],
@@ -278,7 +276,7 @@ class CripteraAppState extends State<CripteraApp> {
     bottomAppBarColor: Colors.black26,
   );
 
-  final ThemeData darkThemeOLED = new ThemeData(
+  final ThemeData darkThemeOLED = ThemeData(
     brightness: Brightness.dark,
     colorScheme: ColorScheme.dark(
       secondary: Colors.deepPurpleAccent[100]!,
@@ -304,7 +302,7 @@ class CripteraAppState extends State<CripteraApp> {
     dividerColor: Color.fromRGBO(20, 20, 20, 1.0),
     bottomAppBarColor: Color.fromRGBO(19, 19, 19, 1.0),
     dialogBackgroundColor: Colors.black,
-    iconTheme: new IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: Colors.white),
   );
 
   @override

@@ -173,12 +173,12 @@ class Sparkline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new LimitedBox(
+    return LimitedBox(
       maxWidth: fallbackWidth,
       maxHeight: fallbackHeight,
-      child: new CustomPaint(
+      child: CustomPaint(
         size: Size.infinite,
-        painter: new _SparklinePainter(data,
+        painter: _SparklinePainter(data,
             lineWidth: lineWidth,
             lineColor: lineColor,
             lineGradient: lineGradient,
@@ -264,14 +264,14 @@ class _SparklinePainter extends CustomPainter {
           gridLineText = gridLineValue.toStringAsFixed(2);
         } else {
           gridLineText = gridLineValue.round().toString().replaceAllMapped(
-              new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
               (Match m) => "${m[1]},");
         }
 
-        gridLineTextPainters.add(new TextPainter(
-            text: new TextSpan(
+        gridLineTextPainters.add(TextPainter(
+            text: TextSpan(
                 text: labelPrefix + gridLineText,
-                style: new TextStyle(
+                style: TextStyle(
                     color: gridLineLabelColor,
                     fontSize: 10.0,
                     fontWeight: FontWeight.bold)),
@@ -291,14 +291,14 @@ class _SparklinePainter extends CustomPainter {
     final double height = size.height - lineWidth;
     final double heightNormalizer = height / (_max - _min);
 
-    final Path path = new Path();
+    final Path path = Path();
     final List<Offset> points = <Offset>[];
 
     Offset startPoint = Offset(0, 0);
 
     if (enableGridLines) {
       width = size.width - gridLineTextPainters[0].text!.text!.length * 6;
-      Paint gridPaint = new Paint()
+      Paint gridPaint = Paint()
         ..color = gridLineColor
         ..strokeWidth = gridLineWidth;
 
@@ -308,12 +308,12 @@ class _SparklinePainter extends CustomPainter {
       // Draw grid lines
       for (int i = 0; i < gridLineAmount; i++) {
         gridLineY = (gridLineDist * i).round().toDouble();
-        canvas.drawLine(new Offset(0.0, gridLineY),
-            new Offset(width, gridLineY), gridPaint);
+        canvas.drawLine(Offset(0.0, gridLineY),
+            Offset(width, gridLineY), gridPaint);
 
         // Label grid lines
         gridLineTextPainters[i]
-            .paint(canvas, new Offset(width + 2.0, gridLineY - 6.0));
+            .paint(canvas, Offset(width + 2.0, gridLineY - 6.0));
       }
     }
 
@@ -325,35 +325,36 @@ class _SparklinePainter extends CustomPainter {
           height - (dataPoints[i] - _min) * heightNormalizer + lineWidth / 2;
 
       if (pointsMode == PointsMode.all) {
-        points.add(new Offset(x, y));
+        points.add(Offset(x, y));
       }
 
       if (pointsMode == PointsMode.last && i == dataPoints.length - 1) {
-        points.add(new Offset(x, y));
+        points.add(Offset(x, y));
       }
 
       if (i == 0) {
-        startPoint = new Offset(x, y);
+        startPoint = Offset(x, y);
         path.moveTo(x, y);
       } else {
         path.lineTo(x, y);
       }
     }
 
-    Paint paint = new Paint()
+    Paint paint = Paint()
       ..strokeWidth = lineWidth
       ..color = lineColor
       ..strokeCap = StrokeCap.round
       ..strokeJoin = sharpCorners ? StrokeJoin.miter : StrokeJoin.round
       ..style = PaintingStyle.stroke;
 
+    // Apply line gradient if provided
     if (lineGradient != null) {
-      final Rect lineRect = new Rect.fromLTWH(0.0, 0.0, width, height);
+      final Rect lineRect = Rect.fromLTWH(0.0, 0.0, width, height);
       paint.shader = lineGradient.createShader(lineRect);
     }
 
     if (fillMode != FillMode.none) {
-      Path fillPath = new Path()..addPath(path, Offset.zero);
+      Path fillPath = Path()..addPath(path, Offset.zero);
       if (fillMode == FillMode.below) {
         fillPath.relativeLineTo(lineWidth / 2, 0.0);
         fillPath.lineTo(size.width, size.height);
@@ -367,13 +368,14 @@ class _SparklinePainter extends CustomPainter {
       }
       fillPath.close();
 
-      Paint fillPaint = new Paint()
+      Paint fillPaint = Paint()
         ..strokeWidth = 0.0
         ..color = fillColor
         ..style = PaintingStyle.fill;
 
+      // Apply fill gradient if provided
       if (fillGradient != null) {
-        final Rect fillRect = new Rect.fromLTWH(0.0, 0.0, width, height);
+        final Rect fillRect = Rect.fromLTWH(0.0, 0.0, width, height);
         fillPaint.shader = fillGradient.createShader(fillRect);
       }
       canvas.drawPath(fillPath, fillPaint);
@@ -382,7 +384,7 @@ class _SparklinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     if (points.isNotEmpty) {
-      Paint pointsPaint = new Paint()
+      Paint pointsPaint = Paint()
         ..strokeCap = StrokeCap.round
         ..strokeWidth = pointSize
         ..color = pointColor;

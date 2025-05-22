@@ -10,41 +10,41 @@ class ExchangeListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new InkWell(
+    return InkWell(
         onTap: () {
-          Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new CoinMarketStats(
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => CoinMarketStats(
                     exchangeData: exchangeDataSnapshot,
                     e: exchangeDataSnapshot["MARKET"],
                   )));
         },
-        child: new Container(
+        child: Container(
           padding: const EdgeInsets.all(6.0),
-          decoration: new BoxDecoration(),
-          child: new Row(
+          decoration: BoxDecoration(),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              new Container(
+              Container(
                 width: MediaQuery.of(context).size.width * columnProps[0],
-                child: new Text(exchangeDataSnapshot["MARKET"],
+                child: Text(exchangeDataSnapshot["MARKET"],
                     style: Theme.of(context).textTheme.bodyLarge),
               ),
-              new Container(
+              Container(
                 alignment: Alignment.centerRight,
                 width: MediaQuery.of(context).size.width * columnProps[1],
-                child: new Text(
+                child: Text(
                     "\$" + normalizeNum(exchangeDataSnapshot["VOLUME24HOURTO"]),
                     style: Theme.of(context).textTheme.bodyLarge),
               ),
-              new Container(
+              Container(
                 width: MediaQuery.of(context).size.width * columnProps[2],
-                child: new Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    new Text("\$" +
+                    Text("\$" +
                         normalizeNumNoCommas(exchangeDataSnapshot["PRICE"])),
                     exchangeDataSnapshot["CHANGEPCT24HOUR"] > 0
-                        ? new Text(
+                        ? Text(
                             "+" +
                                 exchangeDataSnapshot["CHANGEPCT24HOUR"]
                                     .toStringAsFixed(2) +
@@ -53,7 +53,7 @@ class ExchangeListItem extends StatelessWidget {
                                 .textTheme
                                 .bodyLarge
                                 ?.apply(color: Colors.green))
-                        : new Text(
+                        : Text(
                             exchangeDataSnapshot["CHANGEPCT24HOUR"]
                                     .toStringAsFixed(2) +
                                 "%",
